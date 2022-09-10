@@ -21,7 +21,7 @@ pub fn start() -> Result<(), JsValue> {
     let vert_shader = compile_shader(
         &context,
         WebGl2RenderingContext::VERTEX_SHADER,
-        r##"version 300 es
+        r##"#version 300 es
 
         in vec4 position;
 
@@ -34,9 +34,9 @@ pub fn start() -> Result<(), JsValue> {
     let frag_shader = compile_shader(
         &context,
         WebGl2RenderingContext::FRAGMENT_SHADER,
-        r##"version 300 es
+        r##"#version 300 es
 
-        precision highp float
+        precision highp float;
         out vec4 outColor;
 
         void main() {
