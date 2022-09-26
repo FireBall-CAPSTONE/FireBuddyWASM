@@ -7,6 +7,40 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{ WebGl2RenderingContext, WebGlProgram, WebGlShader };
 
+mod app_state;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+#[wasm_bindgen]
+pub struct App {
+    gl: WebGl2RenderingContext,
+}
+
+#[wasm_bindgen]
+impl App {
+    #[wasm_bindgen(constructor)]
+    pub fn new(gl: WebGl2RenderingContext) -> Self {
+        App{
+            gl: gl,
+        }
+    }
+
+    pub fn update(&mut self) -> Result<(), JsValue> {
+        // Update canvas size
+        // update view matrix
+        // update 
+        Ok(())
+    }
+
+    pub fn render(&self) -> Result<(), JsValue> {
+        Ok(())
+    }
+}
+
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     let document = web_sys::window().unwrap().document().unwrap();
