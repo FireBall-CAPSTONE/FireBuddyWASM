@@ -7,9 +7,10 @@ The project compiles to Web Assembly and can be easily deployed on an existing w
 
 Built using:
 
-* wasm-bindgen
-* js-sys
-* lazy-static
+* [wasm-bindgen](https://docs.rs/wasm-bindgen/latest/wasm_bindgen/)
+* [js-sys](https://docs.rs/js-sys/latest/js_sys/)
+* [lazy-static](https://docs.rs/lazy_static/latest/lazy_static/)
+* [wasm-pack](https://rustwasm.github.io)
 
 ## How to compile
 
@@ -39,7 +40,6 @@ This creates a folder called `pkg` which contains all the files required to run 
     <title>Document</title>
 </head>
 <body>
-    <p id="fps"  style="color: white; z-index: -10;">10</p>
     <canvas id="canvas" height="600" width="800" style="position: absolute; top:0px; left: 0px; z-index: -10;">
 
     <script type="module" src="renderer.js"/>
@@ -92,3 +92,4 @@ async function run() {
 // run the program
 await run();
 ```
+> `.wasm` files are resources that are requested from a webserver. You cannot simply open up the html file in a web browser and have the WASM code work. I recommend using the [live server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension for vscode users. You can also spin up a local web server with python.
