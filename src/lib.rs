@@ -1,5 +1,3 @@
-// Starter code from:
-//
 // Hamilton Rice
 
 use graphics::mesh::Mesh;
