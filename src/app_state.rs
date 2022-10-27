@@ -18,6 +18,14 @@ pub fn update_dynamic_data(time: f32, canvas_height: f32, canvas_width: f32) {
     *data = Arc::new( AppState::new(time, canvas_height, canvas_width));
 }
 
+pub fn get_canvas_height() -> f32 {
+    APP_STATE.lock().unwrap().canvas_height
+}
+
+pub fn get_canvas_width() -> f32 {
+    APP_STATE.lock().unwrap().canvas_width
+}
+
 /// Takes in a matrix and multiplies it onto the mat stack
 pub fn multiply_to_mat_stack(mat: Matrix4) {
     let mut stack = MAT_STACK.lock().unwrap();

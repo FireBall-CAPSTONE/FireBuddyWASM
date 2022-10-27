@@ -2,6 +2,7 @@
 
 use graphics::mesh::Mesh;
 use graphics::mesh_renderer::MeshRenderer;
+use graphics::programs::*;
 use wasm_bindgen::prelude::*;
 use web_sys::WebGl2RenderingContext;
 
@@ -25,10 +26,6 @@ extern "C" {
 #[wasm_bindgen]
 pub struct App {
     gl: WebGl2RenderingContext,
-    // vertex_buffer: WebGlBuffer,
-    // vertex_array: WebGlVertexArrayObject,
-    // program: WebGlProgram,
-    // vert_count: i32,
     root: Node
 }
 
@@ -69,19 +66,22 @@ impl App {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32) -> Result<(), JsValue> {
+    pub fn update(&mut self, delta_time: f32, canvas_height: i32, canvas_width: i32) -> Result<(), JsValue> {
         // Update canvas size
         // update view matrix
         // update 
 
         // self.root.position -= Vector3::up() * delta_time * 0.2;
+        
+        app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
 
         self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.5, delta_time * 0.1);
+        self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            0.35,
+            self.root.scale[0],
             self.root.scale[1],
-            0.0
+            self.root.scale[2]
         );
 
         // self.root.position = Vector3::new(0.0, (self.root.scale[1] as f32).sin(), 0.0);
@@ -90,31 +90,12 @@ impl App {
     }
 
     pub fn render(&self) -> Result<(), JsValue> {
-        // traverse the scene tree
-        // multiply onto mat stack
-
-        // draw(&self.gl, self.vert_count);
-        // log("Rendering");
-        // self.gl.clear_depth(-1.0);
         self.gl.clear(WebGl2RenderingContext::DEPTH_BUFFER_BIT);
         self.gl.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
         self.root.render(&self.gl);
         Ok(())
     }
 }
-
-// pub fn draw(context: &WebGl2RenderingContext, vert_count: i32, ind_buff: WebGlBuffer) {
-//     context.clear_color(0.0, 0.05, 0.1, 1.0);
-//     context.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
-//     // context.draw_arrays(WebGl2RenderingContext::TRIANGLES, 0, vert_count);
-//     context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, Some(&ind_buff));
-//     context.draw_elements_with_i32(
-//         WebGl2RenderingContext::TRIANGLES,
-//         12,
-//         WebGl2RenderingContext::UNSIGNED_INT,
-//         0
-//     );
-// }
 
 pub fn js_log(msg: &str) {
     unsafe { log(msg) }

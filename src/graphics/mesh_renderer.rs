@@ -1,8 +1,8 @@
 use web_sys::{WebGlBuffer, WebGl2RenderingContext as GL, WebGlProgram, WebGlVertexArrayObject};
 
-use crate::{common, math::{mat4::Matrix4, vec3::Vector3}, js_log, app_state::peek_mat_stack};
+use crate::{common, math::{mat4::Matrix4, vec3::Vector3}, js_log, app_state::{peek_mat_stack, get_canvas_height, get_canvas_width}};
 
-use super::{mesh::Mesh, frag_shaders, vert_shaders};
+use super::{mesh::Mesh, frag_shaders, vert_shaders, programs::material::Material};
 
 pub struct MeshRenderer {
     mesh: Mesh,
@@ -10,7 +10,8 @@ pub struct MeshRenderer {
     index_buffer: WebGlBuffer,
     program: WebGlProgram,
     index_count: i32,
-    vao: WebGlVertexArrayObject
+    vao: WebGlVertexArrayObject,
+    // mat: dyn Material // TODO Enable this later
 }
 
 impl MeshRenderer {
@@ -111,10 +112,13 @@ impl MeshRenderer {
             "position_matrix"
         ).unwrap();
 
+        let height = get_canvas_height();
+        let width = get_canvas_width();
+
         // TODO: Get this from application state
         let proj_mat = Matrix4::perspective(
             0.436 * 2.0, 
-            800.0/600.0, 
+            width/height, 
             0.1, 
             100.0
         ).transpose();
