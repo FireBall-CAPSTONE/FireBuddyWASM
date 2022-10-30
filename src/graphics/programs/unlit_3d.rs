@@ -131,7 +131,7 @@ impl Material for UnlitTextured3D {
 
         gl.active_texture(GL::TEXTURE0);
         gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
-        // gl.uniform1i(Some(&sampler_location), 0);
+        gl.uniform1i(Some(&sampler_location), 0);
 
         // todo!()
     }
@@ -202,7 +202,7 @@ fn load_texture(
         a.forget();
     }
 
-    imgrc.set_src("https://preview.redd.it/0qtc8un3bz061.png?auto=webp&s=cba55bec97b60ab14b2d53d5642b2d00cf1ba12c");
+    imgrc.set_src("https://res.cloudinary.com/teepublic/image/private/s--ksEvnjvi--/t_Preview/b_rgb:ffffff,c_limit,f_jpg,h_630,q_90,w_630/v1569015823/production/designs/6035053_0.jpg");
 
     Ok(texture)
 
