@@ -96,6 +96,23 @@ impl Mesh {
         Self { index_size: indices.len(), verts: verts, inds: indices, }
     }
 
+    pub fn texture_quad() -> Self {
+        let verts = vec![
+//          x     y     z    norx nory norz u    v
+            -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // 0
+             0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, // 1
+             0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, // 2
+            -0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0  // 3
+        ];
+
+        let indices = vec![
+            2, 1, 0,
+            3, 2, 0,
+        ];
+
+        Self { index_size: indices.len(), verts: verts, inds: indices }
+    }
+
     // pub fn normal_cube_unit_sphere_face(resolution: i32) -> Self {
     //     // Create a subdivided cube
     //     // Normalize the points

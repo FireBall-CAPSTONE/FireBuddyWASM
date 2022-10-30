@@ -35,30 +35,35 @@ impl App {
     pub fn new(element_id: &str) -> Self {
 
         let gl = common::get_gl_context(element_id).unwrap();
-        
+        // TODO: Actually throw an error here instead of just assuming it's going to work
+
         gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
         gl.clear_color(0.0, 0.0, 0.25, 1.0);
 
+        log("Creating mesh renderer");
+
         let r = MeshRenderer::new(
             &gl,
-            Mesh::unit_cube()
+            Mesh::texture_quad()
         );
+
+        log("Created mesh renderer");
 
         let mut root_node = Node::new();
         root_node.add_renderer(r);
 
-        for _i in 0..1 {
-            let child_r = MeshRenderer::new(
-                &gl,
-                Mesh::unit_cube()
-            );
+        // for _i in 0..1 {
+        //     let child_r = MeshRenderer::new(
+        //         &gl,
+        //         Mesh::unit_cube()
+        //     );
 
-            let mut child = Node::new();
-            child.add_renderer(child_r);
-            root_node.add_child(child);
-        }
+        //     let mut child = Node::new();
+        //     child.add_renderer(child_r);
+        //     root_node.add_child(child);
+        // }
 
         App{
             gl: gl,
@@ -76,12 +81,13 @@ impl App {
         app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
 
         self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.5, delta_time * 0.1);
+        // self.root.position -= Vector3::new(0.0, 0.0, delta_time * 0.01);
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            self.root.scale[0],
+            0.0,// self.root.scale[0],
             self.root.scale[1],
-            self.root.scale[2]
+            0.0// self.root.scale[2]
         );
 
         // self.root.position = Vector3::new(0.0, (self.root.scale[1] as f32).sin(), 0.0);
