@@ -6,6 +6,7 @@ use graphics::programs::*;
 use wasm_bindgen::prelude::*;
 use web_sys::WebGl2RenderingContext;
 
+use crate::graphics::programs::unlit_3d::UnlitTextured3D;
 use crate::math::quaternion::Quaternion;
 use crate::math::vec3::Vector3;
 use crate::scene::scene_node::Node;
@@ -46,7 +47,13 @@ impl App {
 
         let r = MeshRenderer::new(
             &gl,
-            Mesh::texture_quad()
+            Mesh::unit_cube(),
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
         );
 
         log("Created mesh renderer");
@@ -85,9 +92,9 @@ impl App {
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            0.0,// self.root.scale[0],
+            self.root.scale[0],
             self.root.scale[1],
-            0.0// self.root.scale[2]
+            self.root.scale[2]
         );
 
         // self.root.position = Vector3::new(0.0, (self.root.scale[1] as f32).sin(), 0.0);

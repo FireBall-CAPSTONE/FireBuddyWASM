@@ -25,6 +25,10 @@ impl Material for Unlit3D {
     fn init_uniforms(&self, gl: &GL) {
         todo!()
     }
+
+    fn get_program(&self) -> WebGlProgram {
+        self.program.clone()
+    }
 }
 
 pub struct UnlitTextured3D {
@@ -34,11 +38,11 @@ pub struct UnlitTextured3D {
 }
 
 impl UnlitTextured3D {
-    pub fn new(gl: &GL) -> Self {
+    pub fn new(gl: &GL, img_src: &str) -> Self {
         // Create a texture element
         // Load the texture element
         js_log("load texture");
-        let tex = load_texture(gl, "jermasus.png").unwrap();
+        let tex = load_texture(gl, img_src).unwrap();
 
         js_log("compile vert shader");
         let vert_shader = common::compile_shader(
@@ -141,6 +145,10 @@ impl Material for UnlitTextured3D {
 
         // todo!()
     }
+
+    fn get_program(&self) -> WebGlProgram {
+        self.program.clone()
+    }
 }
 
 fn load_texture(
@@ -208,7 +216,7 @@ fn load_texture(
         a.forget();
     }
 
-    imgrc.set_src("jermasus.png");
+    imgrc.set_src(img_src);
 
     Ok(texture)
 

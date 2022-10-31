@@ -16,7 +16,7 @@ pub struct MeshRenderer {
 }
 
 impl MeshRenderer {
-    pub fn new(gl: &GL, mesh: Mesh) -> Self {
+    pub fn new(gl: &GL, mesh: Mesh, mat: Box<dyn Material>) -> Self {
 
         // Create new program
         // let vert_shader = common::compile_shader(
@@ -46,17 +46,18 @@ impl MeshRenderer {
 
         // let program = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
         // gl.use_program(Some(&program));
-        js_log("creating material");
-        let material = UnlitTextured3D::new(&gl);
-        js_log("created material");
+        // js_log("creating material");
+        // let material = UnlitTextured3D::new(&gl);
+        // js_log("created material");
         
         // TODO: Make this more generic to include textured objects
         // Create buffers and attributes
+        let program = mat.get_program();
         let vbuffer = gl.create_buffer().unwrap();
         let ibuffer = gl.create_buffer().unwrap();
-        let position_attrib_location = gl.get_attrib_location(&material.program, "vertex_position");
-        let normal_attrib_location = gl.get_attrib_location(&material.program, "vertex_normal");
-        let uv_attrib_location = gl.get_attrib_location(&material.program, "vertex_uv_coords");
+        let position_attrib_location = gl.get_attrib_location(&program, "vertex_position");
+        let normal_attrib_location = gl.get_attrib_location(&program, "vertex_normal");
+        let uv_attrib_location = gl.get_attrib_location(&program, "vertex_uv_coords");
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&vbuffer));
         gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&ibuffer));
 
@@ -82,8 +83,6 @@ impl MeshRenderer {
             .ok_or("Could not create vertex array").unwrap();
         gl.bind_vertex_array(Some(&vao));
 
-        js_log(&format!("{:?}", material.program));
-
         gl.vertex_attrib_pointer_with_i32(
             position_attrib_location as u32,
             3,
@@ -94,7 +93,7 @@ impl MeshRenderer {
         );
 
         gl.vertex_attrib_pointer_with_i32(
-            1 as u32, 
+            normal_attrib_location as u32, 
             3, 
             GL::FLOAT, 
             false, 
@@ -112,7 +111,7 @@ impl MeshRenderer {
         );
 
         gl.enable_vertex_attrib_array(position_attrib_location as u32);
-        gl.enable_vertex_attrib_array(0 as u32);
+        gl.enable_vertex_attrib_array(normal_attrib_location as u32);
         gl.enable_vertex_attrib_array(uv_attrib_location as u32);
         gl.bind_vertex_array(Some(&vao));
 
@@ -123,7 +122,7 @@ impl MeshRenderer {
             index_buffer: ibuffer,
             // program: program,
             vao: vao,
-            mat: Box::new(material) as Box<dyn Material> // I hate this so much
+            mat: mat
         }
     }
 
