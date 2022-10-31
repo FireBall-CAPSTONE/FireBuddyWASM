@@ -41,11 +41,6 @@ impl App {
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
         gl.clear_color(0.0, 0.0, 0.25, 1.0);
-        gl.tex_parameteri(
-            WebGl2RenderingContext::TEXTURE_2D, 
-            WebGl2RenderingContext::TEXTURE_MIN_FILTER, 
-            WebGl2RenderingContext::LINEAR as i32
-        ); // Set filtering mode to linear (default is nearest)
         
         log("Creating mesh renderer");
 

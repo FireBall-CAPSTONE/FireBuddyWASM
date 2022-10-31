@@ -129,6 +129,12 @@ impl Material for UnlitTextured3D {
             &view_proj_mat.data
         );
 
+        gl.tex_parameteri(
+            GL::TEXTURE_2D, 
+            GL::TEXTURE_MIN_FILTER, 
+            GL::LINEAR as i32
+        ); // Set filtering mode to linear (default is nearest)
+
         gl.active_texture(GL::TEXTURE0);
         gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         gl.uniform1i(Some(&sampler_location), 0);
@@ -202,7 +208,7 @@ fn load_texture(
         a.forget();
     }
 
-    imgrc.set_src("https://res.cloudinary.com/teepublic/image/private/s--ksEvnjvi--/t_Preview/b_rgb:ffffff,c_limit,f_jpg,h_630,q_90,w_630/v1569015823/production/designs/6035053_0.jpg");
+    imgrc.set_src("jermasus.png");
 
     Ok(texture)
 
