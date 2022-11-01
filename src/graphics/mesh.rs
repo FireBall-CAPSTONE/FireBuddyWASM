@@ -30,12 +30,29 @@
 // }
 
 use crate::math::vec3::Vector3;
+use crate::math::vec2::Vector2;
 
 #[derive(Default, Clone, Copy)]
 pub struct Vertex {
     pos: Vector3,
     nor: Vector3,
-    // uvs: Vector2 // TODO: Make a Vector2 struct
+    uvs: Vector2
+}
+
+impl Vertex {
+    pub fn new(pos: Vector3, nor: Vector3, uvs: Vector2) -> Self {
+        Self { pos, nor, uvs }
+    }
+
+    pub fn new_normailze(pos: Vector3, nor: Vector3, uvs: Vector2) -> Self {
+        Self { pos, nor:nor.normalize(), uvs }
+    }
+}
+
+impl From<Vertex> for [f32; 8] {
+    fn from(vert: Vertex) -> Self {
+        [vert.pos[0], vert.pos[1], vert.pos[2], vert.nor[0], vert.nor[1], vert.nor[2], vert.uvs[0], vert.uvs[1]]
+    }
 }
 
 pub struct Mesh {

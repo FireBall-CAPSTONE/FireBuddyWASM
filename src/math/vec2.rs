@@ -1,5 +1,6 @@
 use std::ops::{Index, IndexMut, Mul, MulAssign, Add, AddAssign, Neg, Sub, SubAssign};
 
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Vector2 {
     pub data: [f32; 2]
 
