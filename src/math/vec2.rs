@@ -1,4 +1,4 @@
-use std::ops::{Index, IndexMut, Mul, MulAssign, Add, AddAssign, Neg, Sub, SubAssign};
+use std::ops::{Index, IndexMut, Mul, MulAssign, Add, AddAssign, Neg, Sub, SubAssign, Div, DivAssign};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vector2 {
@@ -130,6 +130,24 @@ impl MulAssign<f32> for Vector2 {
     fn mul_assign(&mut self, rhs: f32) {
         self.data[0] *= rhs;
         self.data[1] *= rhs;
+    }
+}
+
+impl Div<f32> for Vector2 {
+    type Output = Vector2;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Self { data: [
+            self.data[0] / rhs,
+            self.data[1] / rhs
+        ] }
+    }
+}
+
+impl DivAssign<f32> for Vector2 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.data[0] /= rhs;
+        self.data[1] /= rhs;
     }
 }
 
