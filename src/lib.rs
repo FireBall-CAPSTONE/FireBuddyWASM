@@ -47,7 +47,62 @@ impl App {
 
         let r = MeshRenderer::new(
             &gl,
-            Mesh::unit_cube(),
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()),
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
+        );
+
+        let r2 = MeshRenderer::new(
+            &gl, 
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
+        );
+
+        let r3 = MeshRenderer::new(
+            &gl, 
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
+        );
+
+        let r4 = MeshRenderer::new(
+            &gl, 
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
+        );
+
+        let r5 = MeshRenderer::new(
+            &gl, 
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl, 
+                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                )
+            )
+        );
+
+        let r6 = MeshRenderer::new(
+            &gl, 
+            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -57,9 +112,54 @@ impl App {
         );
 
         log("Created mesh renderer");
+        let deg_to_rad = std::f32::consts::PI / 180.0;
 
+        // TODO: find a better way of doing this
         let mut root_node = Node::new();
-        root_node.add_renderer(r);
+        let mut quad_sphere_node = Node::new();
+        let mut quad_sphere_node_2 = Node::new();
+        let mut quad_sphere_node_3 = Node::new();
+        let mut quad_sphere_node_4 = Node::new();
+        let mut quad_sphere_node_5 = Node::new();
+        let mut quad_sphere_node_6 = Node::new();
+        quad_sphere_node.add_renderer(r);
+        quad_sphere_node_2.add_renderer(r2);
+        quad_sphere_node_3.add_renderer(r3);
+        quad_sphere_node_4.add_renderer(r4);
+        quad_sphere_node_5.add_renderer(r6);
+        quad_sphere_node_6.add_renderer(r5);
+        quad_sphere_node_2.rotation = Quaternion::euler(
+            0.0, 
+            90.0 * deg_to_rad, 
+            0.0
+        );
+        quad_sphere_node_3.rotation = Quaternion::euler(
+            0.0, 
+            180.0 * deg_to_rad, 
+            0.0
+        );
+        quad_sphere_node_4.rotation = Quaternion::euler(
+            0.0, 
+            270.0 * deg_to_rad, 
+            0.0
+        );
+        quad_sphere_node_5.rotation = Quaternion::euler(
+            270.0 * deg_to_rad, 
+            0.0, 
+            0.0
+        );
+        quad_sphere_node_6.rotation = Quaternion::euler(
+            90.0 * deg_to_rad, 
+            0.0, 
+            0.0
+        );
+        // root_node.add_renderer(r);
+        root_node.add_child(quad_sphere_node);
+        root_node.add_child(quad_sphere_node_2);
+        root_node.add_child(quad_sphere_node_3);
+        root_node.add_child(quad_sphere_node_4);
+        root_node.add_child(quad_sphere_node_5);
+        root_node.add_child(quad_sphere_node_6);
 
         // for _i in 0..1 {
         //     let child_r = MeshRenderer::new(
@@ -87,14 +187,14 @@ impl App {
         
         app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
 
-        self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.5, delta_time * 0.1);
+        self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.05, delta_time * 0.1);
         // self.root.position -= Vector3::new(0.0, 0.0, delta_time * 0.01);
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            self.root.scale[0],
+            0.0,//self.root.scale[0],
             self.root.scale[1],
-            self.root.scale[2]
+            0.0//self.root.scale[2]
         );
 
         // self.root.position = Vector3::new(0.0, (self.root.scale[1] as f32).sin(), 0.0);

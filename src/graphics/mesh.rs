@@ -29,6 +29,7 @@
 //     }
 // }
 
+use crate::js_log;
 use crate::math::vec3::Vector3;
 use crate::math::vec2::Vector2;
 
@@ -47,11 +48,10 @@ impl Vertex {
     pub fn new_normailze(pos: Vector3, nor: Vector3, uvs: Vector2) -> Self {
         Self { pos, nor:nor.normalize(), uvs }
     }
-}
 
-impl From<Vertex> for [f32; 8] {
-    fn from(vert: Vertex) -> Self {
-        [vert.pos[0], vert.pos[1], vert.pos[2], vert.nor[0], vert.nor[1], vert.nor[2], vert.uvs[0], vert.uvs[1]]
+    pub fn as_array(self) -> [f32; 8] {
+        [self.pos[0], self.pos[1], self.pos[2], self.nor[0], self.nor[1], self.nor[2], self.uvs[0], self.uvs[1]]
+        // [self.uvs[1], self.uvs[0], self.nor[2], self.nor[1], self.nor[0], self.pos[2], self.pos[1], self.pos[0]]
     }
 }
 
@@ -134,6 +134,74 @@ impl Mesh {
         Self { index_size: indices.len(), verts: verts, inds: indices }
     }
 
+    pub fn normal_cube_unit_sphere_face(resolution: u32, direction: Vector3) -> Self {
+        js_log("Salutations gamer");
+        // Pre allocate the required number of vertices and indices to save time
+        // let mut points: Vec<Vertex> = vec![Vertex::default(); (resolution * resolution) as usize];
+        let mut points = Vec::with_capacity((resolution * resolution) as usize);
+        let mut indices: Vec<u32> = vec![0; (((resolution) * (resolution)) * 6) as usize];
+        // let mut indices = Vec::with_capacity(resolution as usize * resolution as usize * 6);
+        let mut tri_index = 0;
+
+        for x in 0..(resolution) {
+            for y in 0..(resolution) {
+                let i = x + resolution * y;
+                js_log("percent");
+                let percent = Vector2::new(
+                    x as f32, 
+                    y as f32
+                ) / (resolution - 1) as f32;
+
+                js_log("point");
+                let point = Vector3::new(
+                    percent[0] - 0.5,
+                    percent[1] - 0.5,
+                    -0.5,
+                );
+
+                js_log("adding point to vec");
+                // points[i as usize] = Vertex::new(
+                //     point, 
+                //     point.normalize(), 
+                //     percent
+                // );
+
+                points.push(Vertex::new(
+                    point.normalize(),
+                    point.normalize(),
+                    percent
+                ));
+
+                js_log("indices");
+                if x != resolution - 1 && y != resolution - 1 {
+                    indices[tri_index as usize] = i;
+                    indices[tri_index + 1 as usize] = i + resolution + 1;
+                    indices[tri_index + 2 as usize] = i + resolution;
+
+                    indices[tri_index + 3 as usize] = i;
+                    indices[tri_index + 4 as usize] = i + 1;
+                    indices[tri_index + 5 as usize] = i + resolution + 1;
+                    
+                    // indices.push(i);
+                    // indices.push(i + resolution + 1);
+                    // indices.push(i + resolution);
+                    // indices.push(i);
+                    // indices.push(i + 1);
+                    // indices.push(i + resolution);
+                    tri_index += 6;
+                }
+            }
+        }
+        js_log("Created mesh");
+
+        Self { 
+            verts: vec_vertex_to_vec_f32(points),
+            index_size: indices.len(), 
+            inds: indices 
+        }
+        // todo!()
+    }
+
     // pub fn normal_cube_unit_sphere_face(resolution: i32) -> Self {
     //     // Create a subdivided cube
     //     // Normalize the points
@@ -188,4 +256,23 @@ impl Mesh {
     //         indexSize: (tri_index + 1) as i32
     //     }
     // }
+}
+
+/// Convert a vector of `Vertex` instances to an array of `f32` values
+/// 
+/// WebGl expects packed `f32` values, thus `Vertex` cannot be passed in on its own
+/// must first be converted into a usable data format
+fn vec_vertex_to_vec_f32(vert_vec: Vec<Vertex>) -> Vec<f32> {
+    let mut f32_vec = Vec::with_capacity(vert_vec.len() * 8);
+
+    js_log("hello gamer");
+    for vert in vert_vec {
+        let data = vert.as_array();
+        for val in data {
+            f32_vec.push(val);
+        }
+    }
+    js_log("goodbye gamer");
+
+    f32_vec
 }
