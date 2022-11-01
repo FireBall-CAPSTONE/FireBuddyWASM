@@ -50,7 +50,6 @@ impl MeshRenderer {
         // let material = UnlitTextured3D::new(&gl);
         // js_log("created material");
         
-        // TODO: Make this more generic to include textured objects
         // Create buffers and attributes
         let program = mat.get_program();
         let vbuffer = gl.create_buffer().unwrap();

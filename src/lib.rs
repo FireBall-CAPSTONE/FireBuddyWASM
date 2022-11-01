@@ -41,7 +41,7 @@ impl App {
         gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
-        gl.clear_color(0.0, 0.0, 0.25, 1.0);
+        gl.clear_color(0.0, 0.00, 0.00, 1.0);
         
         log("Creating mesh renderer");
 
@@ -51,7 +51,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip1.png"
                 )
             )
         );
@@ -62,7 +62,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip4.png"
                 )
             )
         );
@@ -73,7 +73,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip3.png"
                 )
             )
         );
@@ -84,7 +84,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip2.png"
                 )
             )
         );
@@ -95,7 +95,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip5.png"
                 )
             )
         );
@@ -106,7 +106,7 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "https://preview.redd.it/xutn1rchs7161.gif?format=png8&s=7a91c8875d50b402053e5fea9c0f7f747dcd3c9e"
+                    "/res/world_cube_net_strip6.png"
                 )
             )
         );
@@ -187,12 +187,12 @@ impl App {
         
         app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
 
-        self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.05, delta_time * 0.1);
+        self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.5, delta_time * 0.1);
         // self.root.position -= Vector3::new(0.0, 0.0, delta_time * 0.01);
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            0.0,//self.root.scale[0],
+            0.4,//self.root.scale[0],
             self.root.scale[1],
             0.0//self.root.scale[2]
         );
@@ -211,5 +211,5 @@ impl App {
 }
 
 pub fn js_log(msg: &str) {
-    unsafe { log(msg) }
+    // log(msg)
 }

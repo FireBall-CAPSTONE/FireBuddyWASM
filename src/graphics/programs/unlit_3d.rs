@@ -96,6 +96,11 @@ impl Material for UnlitTextured3D {
             "projection_matrix"
         ).unwrap();
 
+        let view_mat_location = gl.get_uniform_location(
+            &self.program,
+            "view_matrix"
+        ).unwrap();
+
         // js_log("init trans");
         let transform_mat_location = gl.get_uniform_location(
             &self.program, 
@@ -111,6 +116,8 @@ impl Material for UnlitTextured3D {
             0.1, 
             100.0
         );
+
+        // TODO Get camera pos and rotation
         let view_mat = Matrix4::view(
             Vector3::new(0.0, 0.0, -5.0), 
             Vector3::up(), 
@@ -130,7 +137,13 @@ impl Material for UnlitTextured3D {
         gl.uniform_matrix4fv_with_f32_array(
             Some(&proj_mat_location), 
             false, 
-            &view_proj_mat.data
+            &proj_mat.data
+        );
+
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&view_mat_location), 
+            false, 
+            &view_mat.data
         );
 
         gl.tex_parameteri(
