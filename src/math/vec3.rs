@@ -1,8 +1,5 @@
 use std::ops::{Index, Mul, MulAssign, Add, AddAssign, Neg, Sub, SubAssign, IndexMut};
-
-use nalgebra::coordinates::X;
-
-use super::axis::{Axis, self};
+use super::axis::{Axis};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vector3 {

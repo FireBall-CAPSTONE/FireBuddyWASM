@@ -1,11 +1,6 @@
 // Hamilton Rice
-// I am going to combine rendering and mesh data into one struct for simplicity.
 // Were this a more sophisticated engine, I would separate mesh rendering for to
 // support skinned mesh rendering
-
-
-use nalgebra::{Vector3, Vector2};
-use web_sys::WebGlBuffer;
 
 // // type aliases (for convenience)
 // type Vec3 = Vector3<f32>;
@@ -33,6 +28,15 @@ use web_sys::WebGlBuffer;
 //         }
 //     }
 // }
+
+use crate::math::vec3::Vector3;
+
+#[derive(Default, Clone, Copy)]
+pub struct Vertex {
+    pos: Vector3,
+    nor: Vector3,
+    // uvs: Vector2 // TODO: Make a Vector2 struct
+}
 
 pub struct Mesh {
     pub verts: Vec<f32>,
