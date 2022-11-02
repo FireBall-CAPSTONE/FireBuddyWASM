@@ -203,6 +203,51 @@ impl Mesh {
         // todo!()
     }
 
+    pub fn fireball() -> Self {
+        let verts = vec![
+            -0.025, -0.025, -0.025, 1.0, 0.0, 0.0, 0.0, 0.0,
+             0.025, -0.025, -0.025, 1.0, 0.0, 0.0, 1.0, 0.0,
+             0.025,  0.025, -0.025, 1.0, 0.0, 0.0, 1.0, 1.0,
+            -0.025,  0.025, -0.025, 1.0, 0.0, 0.0, 0.0, 1.0,
+
+            -0.025, -0.025,  0.025, 1.0, 0.0, 0.0, 1.0, 1.0,
+             0.025, -0.025,  0.025, 1.0, 0.0, 0.0, 0.0, 1.0,
+             0.025,  0.025,  0.025, 1.0, 0.0, 0.0, 0.0, 0.0,
+            -0.025,  0.025,  0.025, 1.0, 0.0, 0.0, 1.0, 0.0,
+        ];
+
+        let indices = vec![
+            
+            // Back Face
+            2, 1, 0,
+            3, 2, 0,
+
+            // Front Face
+            4, 5, 6,
+            6, 7, 4,
+
+            // Bottom Face
+            0, 1, 5,
+            5, 4, 0,
+
+            // Top Face
+            7, 6, 2,
+            2, 3, 7,
+
+            // Right Face
+            5, 1, 2,
+            2, 6, 5,
+
+            // Left Face
+            0, 4, 7,
+            7, 3, 0
+
+
+        ];
+        
+        Self { index_size: indices.len(), verts: verts, inds: indices, }
+    }
+
     // pub fn normal_cube_unit_sphere_face(resolution: i32) -> Self {
     //     // Create a subdivided cube
     //     // Normalize the points

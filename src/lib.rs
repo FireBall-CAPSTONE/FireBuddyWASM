@@ -38,7 +38,7 @@ impl App {
         let gl = common::get_gl_context(element_id).unwrap();
         // TODO: Actually throw an error here instead of just assuming it's going to work
 
-        // gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
+        gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
         gl.clear_color(0.5, 0.5, 0.5, 1.0);
@@ -117,17 +117,6 @@ impl App {
             )
         );
 
-        let dummy_renderer = MeshRenderer::new(
-            &gl,
-            Mesh::new(),
-            Box::new(
-                UnlitTextured3D::new(
-                    &gl,
-                    ""
-                )
-            )
-        );
-
         log("Created mesh renderer");
         let deg_to_rad = std::f32::consts::PI / 180.0;
 
@@ -139,14 +128,12 @@ impl App {
         let mut quad_sphere_node_4 = Node::new();
         let mut quad_sphere_node_5 = Node::new();
         let mut quad_sphere_node_6 = Node::new();
-        let mut dummy = Node::new();
         quad_sphere_node.add_renderer(r);
         quad_sphere_node_2.add_renderer(r2);
         quad_sphere_node_3.add_renderer(r3);
         quad_sphere_node_4.add_renderer(r4);
         quad_sphere_node_5.add_renderer(r6);
         quad_sphere_node_6.add_renderer(r5);
-        // dummy.add_renderer(dummy_renderer);
         quad_sphere_node_2.rotation = Quaternion::euler(
             0.0, 
             90.0 * deg_to_rad, 
@@ -173,7 +160,6 @@ impl App {
             0.0
         );
         // root_node.add_renderer(r);
-        root_node.add_child(dummy);
         root_node.add_child(quad_sphere_node);
         root_node.add_child(quad_sphere_node_2);
         root_node.add_child(quad_sphere_node_3);
@@ -232,7 +218,7 @@ impl App {
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            -0.4,//self.root.scale[0],
+            0.0,//self.root.scale[0],
             self.root.scale[1],
             0.0//self.root.scale[2]
         );
@@ -249,24 +235,32 @@ impl App {
         Ok(())
     }
 
-    pub fn add_fireball(&mut self, lat: f32, lon: f32) -> Result<(), JsValue> {
+    pub fn add_fireball(&mut self, lat: f32, lon: f32, alt: f32) -> Result<(), JsValue> {
         
         // Create a new node with the rotation
 
         // Create a new node with the translation, scale, and mesh
         let deg_to_rad = std::f32::consts::PI / 180.0;
-        let mut base_rot = Node::new();
-        base_rot.rotation = Quaternion::euler(
-            deg_to_rad * lon,
-            deg_to_rad * lat,
-            0.0
+        let mut base_rot_lon = Node::new(); // y rot
+        let mut base_rot_lat = Node::new(); // x rot
+
+        base_rot_lon.rotation = Quaternion::euler(
+            0.0, 
+            deg_to_rad * (-lon),
+            0.0, 
+            // 0.0
+        );
+
+        base_rot_lat.rotation = Quaternion::euler(
+            deg_to_rad * (-lat + 90.0),
+            0.0,
+            0.0,
         );
 
         let mut base_pos = Node::new();
-        // base_rot.add_renderer(MeshRenderer::new(&self.gl, Mesh::new(), Box::new(UnlitTextured3D::new(&self.gl, "jermasus.png"))));
         base_pos.position = Vector3::new(
             0.0,
-            1.25,
+            1.0 + alt,
             0.0
         );
 
@@ -280,13 +274,15 @@ impl App {
         base_pos.add_renderer(
             MeshRenderer::new(
                 &self.gl,
-                Mesh::normal_cube_unit_sphere_face(2, Vector3::up()),
-                Box::new(UnlitTextured3D::new(&self.gl, "jermasus.png"))
+                Mesh::fireball(),
+                Box::new(UnlitTextured3D::new(&self.gl, ""))
             )
         );
 
+        base_rot_lat.add_child(base_pos);
+        base_rot_lon.add_child(base_rot_lat);
         // base_rot.add_child(base_pos);
-        let _ = &self.root.add_child(base_pos);
+        let _ = &self.root.add_child(base_rot_lon);
         
         Ok(())
     }
