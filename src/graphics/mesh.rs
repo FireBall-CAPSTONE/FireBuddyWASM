@@ -120,10 +120,10 @@ impl Mesh {
     pub fn texture_quad() -> Self {
         let verts = vec![
 //          x     y     z    norx nory norz u    v
-            -0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // 0
-             0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, // 1
-             0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, // 2
-            -0.5,  0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0  // 3
+            -0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.0, // 0
+             0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, // 1
+             0.5,  0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 1.0, // 2
+            -0.5,  0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0  // 3
         ];
 
         let indices = vec![
@@ -183,11 +183,12 @@ impl Mesh {
                     indices[tri_index + 5 as usize] = i + resolution + 1;
                     
                     // indices.push(i);
-                    // indices.push(i + resolution + 1);
                     // indices.push(i + resolution);
+                    // indices.push(i + resolution + 1);
                     // indices.push(i);
                     // indices.push(i + 1);
                     // indices.push(i + resolution);
+                    
                     tri_index += 6;
                 }
             }

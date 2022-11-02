@@ -63,7 +63,6 @@ impl MeshRenderer {
         unsafe {
             // let vert_array_buf_view = js_sys::Float32Array::view(&mesh.verts);
             let vertex_array_buf_view = js_sys::Float32Array::view(&mesh.verts);
-            let index_array_buf_view = js_sys::Uint32Array::view(&mesh.inds);
 
             gl.buffer_data_with_array_buffer_view(
                 GL::ARRAY_BUFFER, 
@@ -71,6 +70,7 @@ impl MeshRenderer {
                 GL::STATIC_DRAW
             );
 
+            let index_array_buf_view = js_sys::Uint32Array::view(&mesh.inds);
             gl.buffer_data_with_array_buffer_view(
                 GL::ELEMENT_ARRAY_BUFFER, 
                 &index_array_buf_view,
@@ -185,6 +185,8 @@ impl MeshRenderer {
         //     &world_mat.data
         // );
 
+        gl.bind_vertex_array(Some(&self.vao));
+
         // Bind the vertext buffer for the mesh
         gl.bind_buffer(
             GL::ARRAY_BUFFER,
@@ -197,7 +199,6 @@ impl MeshRenderer {
             Some(&self.index_buffer)
         );
 
-        gl.bind_vertex_array(Some(&self.vao));
 
         gl.draw_elements_with_i32(
             GL::TRIANGLES, 

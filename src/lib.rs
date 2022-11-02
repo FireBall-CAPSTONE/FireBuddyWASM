@@ -38,16 +38,17 @@ impl App {
         let gl = common::get_gl_context(element_id).unwrap();
         // TODO: Actually throw an error here instead of just assuming it's going to work
 
-        gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
+        // gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
-        gl.clear_color(0.0, 0.00, 0.00, 1.0);
+        gl.clear_color(0.5, 0.5, 0.5, 1.0);
         
         log("Creating mesh renderer");
 
         let r = MeshRenderer::new(
             &gl,
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()),
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -59,6 +60,7 @@ impl App {
         let r2 = MeshRenderer::new(
             &gl, 
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -70,6 +72,7 @@ impl App {
         let r3 = MeshRenderer::new(
             &gl, 
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -81,6 +84,7 @@ impl App {
         let r4 = MeshRenderer::new(
             &gl, 
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -92,6 +96,7 @@ impl App {
         let r5 = MeshRenderer::new(
             &gl, 
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
@@ -103,10 +108,22 @@ impl App {
         let r6 = MeshRenderer::new(
             &gl, 
             Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip6.png"
+                )
+            )
+        );
+
+        let dummy_renderer = MeshRenderer::new(
+            &gl,
+            Mesh::new(),
+            Box::new(
+                UnlitTextured3D::new(
+                    &gl,
+                    ""
                 )
             )
         );
@@ -122,12 +139,14 @@ impl App {
         let mut quad_sphere_node_4 = Node::new();
         let mut quad_sphere_node_5 = Node::new();
         let mut quad_sphere_node_6 = Node::new();
+        let mut dummy = Node::new();
         quad_sphere_node.add_renderer(r);
         quad_sphere_node_2.add_renderer(r2);
         quad_sphere_node_3.add_renderer(r3);
         quad_sphere_node_4.add_renderer(r4);
         quad_sphere_node_5.add_renderer(r6);
         quad_sphere_node_6.add_renderer(r5);
+        // dummy.add_renderer(dummy_renderer);
         quad_sphere_node_2.rotation = Quaternion::euler(
             0.0, 
             90.0 * deg_to_rad, 
@@ -154,23 +173,44 @@ impl App {
             0.0
         );
         // root_node.add_renderer(r);
+        root_node.add_child(dummy);
         root_node.add_child(quad_sphere_node);
         root_node.add_child(quad_sphere_node_2);
         root_node.add_child(quad_sphere_node_3);
         root_node.add_child(quad_sphere_node_4);
         root_node.add_child(quad_sphere_node_5);
         root_node.add_child(quad_sphere_node_6);
+        
 
-        // for _i in 0..1 {
-        //     let child_r = MeshRenderer::new(
-        //         &gl,
-        //         Mesh::unit_cube()
-        //     );
+        let mut base_rot = Node::new();
+        let mut base_pos = Node::new();
 
-        //     let mut child = Node::new();
-        //     child.add_renderer(child_r);
-        //     root_node.add_child(child);
-        // }
+        // base_rot.rotation = Quaternion::euler(
+        //     35.204532 * deg_to_rad, 
+        //     -80.852286 * deg_to_rad,
+        //     0.0
+        // );
+
+        // base_pos.position = Vector3::new(
+        //     0.0, 
+        //     0.0, 
+        //     0.0
+        // );
+
+        // let little_guy = MeshRenderer::new(
+        //     &gl,
+        //     Mesh::unit_cube(),
+        //     Box::new(UnlitTextured3D::new(&gl, ""))
+        // );
+
+        log("Creating little guy");
+        // base_pos.add_renderer(
+        //     little_guy
+        // );
+
+        // base_rot.add_child(base_pos);
+
+        // root_node.add_child(base_rot);
 
         App{
             gl: gl,
@@ -192,7 +232,7 @@ impl App {
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            0.4,//self.root.scale[0],
+            -0.4,//self.root.scale[0],
             self.root.scale[1],
             0.0//self.root.scale[2]
         );
@@ -206,6 +246,48 @@ impl App {
         self.gl.clear(WebGl2RenderingContext::DEPTH_BUFFER_BIT);
         self.gl.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
         self.root.render(&self.gl);
+        Ok(())
+    }
+
+    pub fn add_fireball(&mut self, lat: f32, lon: f32) -> Result<(), JsValue> {
+        
+        // Create a new node with the rotation
+
+        // Create a new node with the translation, scale, and mesh
+        let deg_to_rad = std::f32::consts::PI / 180.0;
+        let mut base_rot = Node::new();
+        base_rot.rotation = Quaternion::euler(
+            deg_to_rad * lon,
+            deg_to_rad * lat,
+            0.0
+        );
+
+        let mut base_pos = Node::new();
+        // base_rot.add_renderer(MeshRenderer::new(&self.gl, Mesh::new(), Box::new(UnlitTextured3D::new(&self.gl, "jermasus.png"))));
+        base_pos.position = Vector3::new(
+            0.0,
+            1.25,
+            0.0
+        );
+
+        MeshRenderer::new(
+            &self.gl,
+            Mesh::unit_cube(),
+            Box::new(UnlitTextured3D::new(&self.gl, ""))
+        );
+        
+        // TODO: Scale
+        base_pos.add_renderer(
+            MeshRenderer::new(
+                &self.gl,
+                Mesh::normal_cube_unit_sphere_face(2, Vector3::up()),
+                Box::new(UnlitTextured3D::new(&self.gl, "jermasus.png"))
+            )
+        );
+
+        // base_rot.add_child(base_pos);
+        let _ = &self.root.add_child(base_pos);
+        
         Ok(())
     }
 }
