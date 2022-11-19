@@ -63,7 +63,6 @@ impl MeshRenderer {
         unsafe {
             // let vert_array_buf_view = js_sys::Float32Array::view(&mesh.verts);
             let vertex_array_buf_view = js_sys::Float32Array::view(&mesh.verts);
-
             gl.buffer_data_with_array_buffer_view(
                 GL::ARRAY_BUFFER, 
                 &vertex_array_buf_view,

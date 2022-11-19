@@ -5,9 +5,12 @@ precision mediump float;
 
 out vec4 outColor;
 
-in vec4 v_pos;
+in vec4 position;
+in vec3 normal;
+in vec2 texture_coords;
 
 void main() {
-    outColor = vec4((v_pos.x + 1.) / 2., (v_pos.y + 1.) / 2., 0.0, 1.0);
+    outColor = vec4(0.9, 0.15, 0.05, 1.0);
+    // outColor = vec4(1.0, 1.0, 1.0, 1.0);
 }
 "##;

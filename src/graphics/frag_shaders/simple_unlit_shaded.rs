@@ -10,7 +10,7 @@ in vec4 position;
 in vec3 normal;
 in vec2 texture_coords;
 
-vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); // TODO: Make this a uniform
 
 void main() {
     // outColor = vec4(1.0, 1.0, 1.0, 1.0);

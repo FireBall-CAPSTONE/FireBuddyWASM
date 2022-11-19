@@ -1,9 +1,9 @@
 use std::{rc::Rc, f32::consts::E};
 
 use wasm_bindgen::{JsValue, prelude::Closure, JsCast, UnwrapThrowExt, throw_str};
-use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL, WebGlUniformLocation, Document};
+use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL, WebGlUniformLocation, Document, WebGlShader};
 
-use crate::{js_log, common, graphics::{frag_shaders, vert_shaders}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height}, math::{mat4::Matrix4, vec3::Vector3}};
+use crate::{js_log, common, graphics::{frag_shaders, vert_shaders, shader_manager::{get_shader, self, ShaderManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height}, math::{mat4::Matrix4, vec3::Vector3}};
 
 use super::material::Material;
 
@@ -12,18 +12,98 @@ pub struct Unlit3D {
 }
 
 impl Unlit3D {
-    pub fn new() {
+    pub fn new(gl: &GL, shader_manager: &ShaderManager) -> Self {
+        // let vert_shader = common::compile_shader(
+        //     &gl, 
+        //     GL::VERTEX_SHADER, 
+        //     vert_shaders::vert_shader_3d::SHADER
+        // ).unwrap();
 
+        // let frag_shader = common::compile_shader(
+        //     &gl, 
+        //     GL::FRAGMENT_SHADER, 
+        //     frag_shaders::simple_unlit::SHADER
+        // ).unwrap();
+
+        let vert_shader = shader_manager.get_shader("vert_3d");
+        let shader_string: String = vert_shader.to_string().into();
+        // js_log(&shader_string);
+        let frag_shader = shader_manager.get_shader("frag_simple_unlit");
+        let frag_string: String = frag_shader.to_string().into();
+        // js_log(&frag_string);
+
+        let prgm = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
+    
+        Self {
+            program: prgm
+        }
     }
+    
 }
 
 impl Material for Unlit3D {
     fn use_material(&self, gl: &GL) {
-        todo!()
+        gl.use_program(Some(&self.program));
+        self.init_uniforms(&gl);
     }
 
     fn init_uniforms(&self, gl: &GL) {
-        todo!()
+
+        // js_log("init proj");
+        let proj_mat_location = gl.get_uniform_location(
+            &self.program, 
+            "projection_matrix"
+        ).unwrap();
+
+        let view_mat_location = gl.get_uniform_location(
+            &self.program,
+            "view_matrix"
+        ).unwrap();
+
+        // js_log("init trans");
+        let transform_mat_location = gl.get_uniform_location(
+            &self.program, 
+            "transform_matrix"
+        ).unwrap();
+        
+        // TODO: Get this from application state
+        let height = get_canvas_height();
+        let width = get_canvas_width();
+        let proj_mat = Matrix4::perspective(
+            0.436 * 2.0, 
+            width/height, 
+            0.1, 
+            100.0
+        );
+
+        // TODO Get camera pos and rotation
+        let view_mat = Matrix4::view(
+            Vector3::new(0.0, 0.0, -5.0), 
+            Vector3::up(), 
+            // &Vector3::new(2.5, 0.0, 15.5).normalize()
+            -Vector3::forward()
+        );
+
+        let view_proj_mat = view_mat * proj_mat;
+        let world_mat = peek_mat_stack();
+
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&transform_mat_location), 
+            false, 
+            &world_mat.data
+        );
+
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&proj_mat_location), 
+            false, 
+            &proj_mat.data
+        );
+
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&view_mat_location), 
+            false, 
+            &view_mat.data
+        );
     }
 
     fn get_program(&self) -> WebGlProgram {
@@ -38,31 +118,31 @@ pub struct UnlitTextured3D {
 }
 
 impl UnlitTextured3D {
-    pub fn new(gl: &GL, img_src: &str) -> Self {
+    pub fn new(gl: &GL, img_src: &str, shader_manager: &ShaderManager) -> Self {
         // Create a texture element
         // Load the texture element
-        js_log("load texture");
         let tex = load_texture(gl, img_src).unwrap();
 
-        js_log("compile vert shader");
-        let vert_shader = common::compile_shader(
-            &gl,
-            GL::VERTEX_SHADER,
-            vert_shaders::vert_shader_3d::SHADER
-        ).unwrap();
+        // let vert_shader = common::compile_shader(
+        //     &gl,
+        //     GL::VERTEX_SHADER,
+        //     vert_shaders::vert_shader_3d::SHADER
+        // ).unwrap();
 
-        js_log("compile frag shader");
-        let frag_shader = common::compile_shader(
-            &gl, 
-            GL::FRAGMENT_SHADER,
-            frag_shaders::simple_unlit_shaded::SHADER
-        ).unwrap();
+        let vert_shader = shader_manager.get_shader("vert_3d");
+
+        // let frag_shader = common::compile_shader(
+        //     &gl, 
+        //     GL::FRAGMENT_SHADER,
+        //     frag_shaders::simple_unlit_shaded::SHADER
+        // ).unwrap();
+
+        let frag_shader = shader_manager.get_shader("frag_simple_unlit_shaded");
 
         // throw_str(&frag_shader);
         // todo!()
 
-        js_log("link program");
-        let prgm = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
+        let prgm = common::link_program(&gl, vert_shader, frag_shader).unwrap();
 
         // get all the uniform locations
 
@@ -177,7 +257,7 @@ fn load_texture(
     let border = 0;
     let src_format = GL::RGBA;
     let src_type = GL::UNSIGNED_BYTE;
-    let pixel: [u8; 4] = [0, 0, 255, 255];
+    let pixel: [u8; 4] = [200, 95, 10, 255];
     // This is the worst method signature I have ever seen
     gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
         GL::TEXTURE_2D, 

@@ -1,12 +1,14 @@
 // Hamilton Rice
 
+use common::compile_shader;
 use graphics::mesh::Mesh;
 use graphics::mesh_renderer::MeshRenderer;
-use graphics::programs::*;
+use graphics::{programs::*, frag_shaders, vert_shaders};
+use graphics::shader_manager::{expose_shader, ShaderManager};
 use wasm_bindgen::prelude::*;
-use web_sys::WebGl2RenderingContext;
+use web_sys::{WebGl2RenderingContext, WebGlShader};
 
-use crate::graphics::programs::unlit_3d::UnlitTextured3D;
+use crate::graphics::programs::unlit_3d::{UnlitTextured3D, Unlit3D};
 use crate::math::quaternion::Quaternion;
 use crate::math::vec3::Vector3;
 use crate::scene::scene_node::Node;
@@ -27,7 +29,8 @@ extern "C" {
 #[wasm_bindgen]
 pub struct App {
     gl: WebGl2RenderingContext,
-    root: Node
+    root: Node,
+    shader_manager: ShaderManager
 }
 
 #[wasm_bindgen]
@@ -41,8 +44,11 @@ impl App {
         gl.enable(WebGl2RenderingContext::CULL_FACE); // Cull backfaces
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
-        gl.clear_color(0.5, 0.5, 0.5, 1.0);
+        gl.clear_color(0.0, 0.0, 0.0, 1.0);
         
+        log("Compiling Shaders");
+        let shader_manager = precompile_shaders(&gl);
+
         log("Creating mesh renderer");
 
         let r = MeshRenderer::new(
@@ -52,7 +58,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip1.png"
+                    "/res/world_cube_net_strip1.png",
+                    &shader_manager
                 )
             )
         );
@@ -64,7 +71,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip4.png"
+                    "/res/world_cube_net_strip4.png",
+                    &shader_manager
                 )
             )
         );
@@ -76,7 +84,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip3.png"
+                    "/res/world_cube_net_strip3.png",
+                    &shader_manager
                 )
             )
         );
@@ -88,7 +97,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip2.png"
+                    "/res/world_cube_net_strip2.png",
+                    &shader_manager
                 )
             )
         );
@@ -100,7 +110,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip5.png"
+                    "/res/world_cube_net_strip5.png",
+                    &shader_manager
                 )
             )
         );
@@ -112,7 +123,8 @@ impl App {
             Box::new(
                 UnlitTextured3D::new(
                     &gl, 
-                    "/res/world_cube_net_strip6.png"
+                    "/res/world_cube_net_strip6.png",
+                    &shader_manager
                 )
             )
         );
@@ -167,40 +179,13 @@ impl App {
         root_node.add_child(quad_sphere_node_5);
         root_node.add_child(quad_sphere_node_6);
         
-
-        let mut base_rot = Node::new();
-        let mut base_pos = Node::new();
-
-        // base_rot.rotation = Quaternion::euler(
-        //     35.204532 * deg_to_rad, 
-        //     -80.852286 * deg_to_rad,
-        //     0.0
-        // );
-
-        // base_pos.position = Vector3::new(
-        //     0.0, 
-        //     0.0, 
-        //     0.0
-        // );
-
-        // let little_guy = MeshRenderer::new(
-        //     &gl,
-        //     Mesh::unit_cube(),
-        //     Box::new(UnlitTextured3D::new(&gl, ""))
-        // );
-
-        log("Creating little guy");
-        // base_pos.add_renderer(
-        //     little_guy
-        // );
-
-        // base_rot.add_child(base_pos);
-
-        // root_node.add_child(base_rot);
+        // let mut base_rot = Node::new();
+        // let mut base_pos = Node::new();
 
         App{
             gl: gl,
-            root: root_node
+            root: root_node,
+            shader_manager: shader_manager
         }
     }
 
@@ -263,19 +248,13 @@ impl App {
             1.0 + alt,
             0.0
         );
-
-        MeshRenderer::new(
-            &self.gl,
-            Mesh::unit_cube(),
-            Box::new(UnlitTextured3D::new(&self.gl, ""))
-        );
         
         // TODO: Scale
         base_pos.add_renderer(
             MeshRenderer::new(
                 &self.gl,
                 Mesh::fireball(),
-                Box::new(UnlitTextured3D::new(&self.gl, ""))
+                Box::new(Unlit3D::new(&self.gl, &self.shader_manager))
             )
         );
 
@@ -286,6 +265,57 @@ impl App {
         
         Ok(())
     }
+}
+
+fn precompile_shaders(gl: &WebGl2RenderingContext) -> ShaderManager {
+    let mut shader_manager = ShaderManager::new();
+
+    // shaders.push(expose_shader(
+    //     &gl,
+    //     frag_shaders::simple_unlit::SHADER,
+    //     WebGl2RenderingContext::FRAGMENT_SHADER, 
+    //     "frag_simple_unlit"
+    // ));
+
+    let shader = compile_shader(
+        &gl, 
+        WebGl2RenderingContext::FRAGMENT_SHADER, 
+        frag_shaders::simple_unlit::SHADER
+    ).unwrap();
+
+    shader_manager.expose_shader(shader, "frag_simple_unlit");
+
+    // shaders.push(expose_shader(
+    //     &gl,
+    //     frag_shaders::simple_unlit_shaded::SHADER,
+    //     WebGl2RenderingContext::FRAGMENT_SHADER,
+    //     "frag_simple_unlit_shaded"
+    // ));
+
+    let shader = compile_shader(
+        &gl, 
+        WebGl2RenderingContext::FRAGMENT_SHADER, 
+        frag_shaders::simple_unlit_shaded::SHADER
+    ).unwrap();
+
+    shader_manager.expose_shader(shader, "frag_simple_unlit_shaded");
+
+    // shaders.push(expose_shader(
+    //     &gl,
+    //     vert_shaders::vert_shader_3d::SHADER,
+    //     WebGl2RenderingContext::VERTEX_SHADER,
+    //     "vert_3d"
+    // ));
+
+    let shader = compile_shader(
+        &gl, 
+        WebGl2RenderingContext::VERTEX_SHADER, 
+        vert_shaders::vert_shader_3d::SHADER
+    ).unwrap();
+
+    shader_manager.expose_shader(shader, "vert_3d");
+
+    shader_manager
 }
 
 pub fn js_log(msg: &str) {
