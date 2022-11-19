@@ -1,10 +1,10 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}, borrow::Borrow};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use lazy_static::lazy_static;
 // use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::{WebGlShader, WebGl2RenderingContext as GL, WebGlProgram};
+use web_sys::{WebGlShader, WebGlProgram};
 
-use crate::{common, js_log};
+use crate::{js_log};
 
 lazy_static! {
     static ref SHADER_MANAGER: Arc<Mutex<HashMap<String, usize>>> = Arc::new(Mutex::new(HashMap::new()));

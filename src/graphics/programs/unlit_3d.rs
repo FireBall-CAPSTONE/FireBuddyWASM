@@ -12,26 +12,6 @@ pub struct Unlit3D {
 
 impl Unlit3D {
     pub fn new(gl: &GL, program_manager: &ShaderProgramManager) -> Self {
-        // let vert_shader = common::compile_shader(
-        //     &gl, 
-        //     GL::VERTEX_SHADER, 
-        //     vert_shaders::vert_shader_3d::SHADER
-        // ).unwrap();
-
-        // let frag_shader = common::compile_shader(
-        //     &gl, 
-        //     GL::FRAGMENT_SHADER, 
-        //     frag_shaders::simple_unlit::SHADER
-        // ).unwrap();
-
-        // let vert_shader = shader_manager.get_shader("vert_3d");
-        // let shader_string: String = vert_shader.to_string().into();
-        // // js_log(&shader_string);
-        // let frag_shader = shader_manager.get_shader("frag_simple_unlit");
-        // let frag_string: String = frag_shader.to_string().into();
-        // // js_log(&frag_string);
-
-        // let prgm = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
         let prgm = program_manager.get_program("simple_unlit").to_owned();
     
         Self {
@@ -119,16 +99,8 @@ pub struct UnlitTextured3D {
 
 impl UnlitTextured3D {
     pub fn new(gl: &GL, img_src: &str, program_manager: &ShaderProgramManager) -> Self {
-        // Create a texture element
-        // Load the texture element
         let tex = load_texture(gl, img_src).unwrap();
-
-        // let vert_shader = shader_manager.get_shader("vert_3d");
-        // let frag_shader = shader_manager.get_shader("frag_simple_unlit_shaded");
-        // let prgm = common::link_program(&gl, vert_shader, frag_shader).unwrap();
         let prgm = program_manager.get_program("textured_lit").to_owned();
-
-        // get all the uniform locations
 
         Self {
             program: prgm,
@@ -255,9 +227,6 @@ fn load_texture(
         Some(&pixel),
     )?;
 
-    // let document = web_sys::window().unwrap().document().unwrap();
-    // let img_element = document.get_element_by_id("texture").unwrap();
-    // let img: HtmlImageElement = img_element.dyn_into::<HtmlImageElement>().unwrap();
 
     let img = HtmlImageElement::new().unwrap();
 
