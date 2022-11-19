@@ -4,7 +4,7 @@ use common::compile_shader;
 use graphics::mesh::Mesh;
 use graphics::mesh_renderer::MeshRenderer;
 use graphics::{programs::*, frag_shaders, vert_shaders};
-use graphics::shader_manager::{expose_shader, ShaderManager};
+use graphics::shader_manager::{ShaderManager, ShaderProgramManager};
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGl2RenderingContext, WebGlShader};
 
@@ -30,7 +30,8 @@ extern "C" {
 pub struct App {
     gl: WebGl2RenderingContext,
     root: Node,
-    shader_manager: ShaderManager
+    shader_manager: ShaderManager,
+    program_manager: ShaderProgramManager
 }
 
 #[wasm_bindgen]
@@ -48,6 +49,7 @@ impl App {
         
         log("Compiling Shaders");
         let shader_manager = precompile_shaders(&gl);
+        let program_manager = link_programs(&gl, &shader_manager);
 
         log("Creating mesh renderer");
 
@@ -59,7 +61,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip1.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -72,7 +74,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip4.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -85,7 +87,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip3.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -98,7 +100,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip2.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -111,7 +113,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip5.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -124,7 +126,7 @@ impl App {
                 UnlitTextured3D::new(
                     &gl, 
                     "/res/world_cube_net_strip6.png",
-                    &shader_manager
+                    &program_manager
                 )
             )
         );
@@ -185,7 +187,8 @@ impl App {
         App{
             gl: gl,
             root: root_node,
-            shader_manager: shader_manager
+            shader_manager: shader_manager,
+            program_manager: program_manager
         }
     }
 
@@ -254,7 +257,7 @@ impl App {
             MeshRenderer::new(
                 &self.gl,
                 Mesh::fireball(),
-                Box::new(Unlit3D::new(&self.gl, &self.shader_manager))
+                Box::new(Unlit3D::new(&self.gl, &self.program_manager))
             )
         );
 
@@ -270,13 +273,6 @@ impl App {
 fn precompile_shaders(gl: &WebGl2RenderingContext) -> ShaderManager {
     let mut shader_manager = ShaderManager::new();
 
-    // shaders.push(expose_shader(
-    //     &gl,
-    //     frag_shaders::simple_unlit::SHADER,
-    //     WebGl2RenderingContext::FRAGMENT_SHADER, 
-    //     "frag_simple_unlit"
-    // ));
-
     let shader = compile_shader(
         &gl, 
         WebGl2RenderingContext::FRAGMENT_SHADER, 
@@ -285,13 +281,6 @@ fn precompile_shaders(gl: &WebGl2RenderingContext) -> ShaderManager {
 
     shader_manager.expose_shader(shader, "frag_simple_unlit");
 
-    // shaders.push(expose_shader(
-    //     &gl,
-    //     frag_shaders::simple_unlit_shaded::SHADER,
-    //     WebGl2RenderingContext::FRAGMENT_SHADER,
-    //     "frag_simple_unlit_shaded"
-    // ));
-
     let shader = compile_shader(
         &gl, 
         WebGl2RenderingContext::FRAGMENT_SHADER, 
@@ -299,13 +288,6 @@ fn precompile_shaders(gl: &WebGl2RenderingContext) -> ShaderManager {
     ).unwrap();
 
     shader_manager.expose_shader(shader, "frag_simple_unlit_shaded");
-
-    // shaders.push(expose_shader(
-    //     &gl,
-    //     vert_shaders::vert_shader_3d::SHADER,
-    //     WebGl2RenderingContext::VERTEX_SHADER,
-    //     "vert_3d"
-    // ));
 
     let shader = compile_shader(
         &gl, 
@@ -316,6 +298,28 @@ fn precompile_shaders(gl: &WebGl2RenderingContext) -> ShaderManager {
     shader_manager.expose_shader(shader, "vert_3d");
 
     shader_manager
+}
+
+fn link_programs(gl: &WebGl2RenderingContext, shader_manager: &ShaderManager) -> ShaderProgramManager {
+    let mut program_manager = ShaderProgramManager::new();
+
+    let program = common::link_program(
+        &gl, 
+        shader_manager.get_shader("vert_3d"), 
+        shader_manager.get_shader("frag_simple_unlit")
+    ).unwrap();
+
+    program_manager.expose_program(program, "simple_unlit");
+
+    let program = common::link_program(
+        &gl,
+        shader_manager.get_shader("vert_3d"),
+        shader_manager.get_shader("frag_simple_unlit_shaded")
+    ).unwrap();
+
+    program_manager.expose_program(program, "textured_lit");
+
+    program_manager
 }
 
 pub fn js_log(msg: &str) {

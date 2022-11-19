@@ -1,9 +1,8 @@
-use std::{rc::Rc, f32::consts::E};
+use std::{rc::Rc};
+use wasm_bindgen::{JsValue, prelude::Closure, JsCast};
+use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL};
 
-use wasm_bindgen::{JsValue, prelude::Closure, JsCast, UnwrapThrowExt, throw_str};
-use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL, WebGlUniformLocation, Document, WebGlShader};
-
-use crate::{js_log, common, graphics::{frag_shaders, vert_shaders, shader_manager::{get_shader, self, ShaderManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height}, math::{mat4::Matrix4, vec3::Vector3}};
+use crate::{js_log, common, graphics::{shader_manager::{ShaderManager, ShaderProgramManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height}, math::{mat4::Matrix4, vec3::Vector3}};
 
 use super::material::Material;
 
@@ -12,7 +11,7 @@ pub struct Unlit3D {
 }
 
 impl Unlit3D {
-    pub fn new(gl: &GL, shader_manager: &ShaderManager) -> Self {
+    pub fn new(gl: &GL, program_manager: &ShaderProgramManager) -> Self {
         // let vert_shader = common::compile_shader(
         //     &gl, 
         //     GL::VERTEX_SHADER, 
@@ -25,14 +24,15 @@ impl Unlit3D {
         //     frag_shaders::simple_unlit::SHADER
         // ).unwrap();
 
-        let vert_shader = shader_manager.get_shader("vert_3d");
-        let shader_string: String = vert_shader.to_string().into();
-        // js_log(&shader_string);
-        let frag_shader = shader_manager.get_shader("frag_simple_unlit");
-        let frag_string: String = frag_shader.to_string().into();
-        // js_log(&frag_string);
+        // let vert_shader = shader_manager.get_shader("vert_3d");
+        // let shader_string: String = vert_shader.to_string().into();
+        // // js_log(&shader_string);
+        // let frag_shader = shader_manager.get_shader("frag_simple_unlit");
+        // let frag_string: String = frag_shader.to_string().into();
+        // // js_log(&frag_string);
 
-        let prgm = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
+        // let prgm = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
+        let prgm = program_manager.get_program("simple_unlit").to_owned();
     
         Self {
             program: prgm
@@ -118,31 +118,15 @@ pub struct UnlitTextured3D {
 }
 
 impl UnlitTextured3D {
-    pub fn new(gl: &GL, img_src: &str, shader_manager: &ShaderManager) -> Self {
+    pub fn new(gl: &GL, img_src: &str, program_manager: &ShaderProgramManager) -> Self {
         // Create a texture element
         // Load the texture element
         let tex = load_texture(gl, img_src).unwrap();
 
-        // let vert_shader = common::compile_shader(
-        //     &gl,
-        //     GL::VERTEX_SHADER,
-        //     vert_shaders::vert_shader_3d::SHADER
-        // ).unwrap();
-
-        let vert_shader = shader_manager.get_shader("vert_3d");
-
-        // let frag_shader = common::compile_shader(
-        //     &gl, 
-        //     GL::FRAGMENT_SHADER,
-        //     frag_shaders::simple_unlit_shaded::SHADER
-        // ).unwrap();
-
-        let frag_shader = shader_manager.get_shader("frag_simple_unlit_shaded");
-
-        // throw_str(&frag_shader);
-        // todo!()
-
-        let prgm = common::link_program(&gl, vert_shader, frag_shader).unwrap();
+        // let vert_shader = shader_manager.get_shader("vert_3d");
+        // let frag_shader = shader_manager.get_shader("frag_simple_unlit_shaded");
+        // let prgm = common::link_program(&gl, vert_shader, frag_shader).unwrap();
+        let prgm = program_manager.get_program("textured_lit").to_owned();
 
         // get all the uniform locations
 
