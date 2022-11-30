@@ -20,6 +20,7 @@ version = "0.3.6"
 features = [
   'Document',
   'Element',
+  'MouseEvent',
   'HtmlCanvasElement',
   'HtmlImageElement',
   'WebGlBuffer',
@@ -29,5 +30,6 @@ features = [
   'WebGlProgram',
   'WebGlShader',
   'WebGlTexture',
+  'WheelEvent',
   'Window',
 ]

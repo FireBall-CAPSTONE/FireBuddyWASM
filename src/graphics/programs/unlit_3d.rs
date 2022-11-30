@@ -2,7 +2,7 @@ use std::{rc::Rc};
 use wasm_bindgen::{JsValue, prelude::Closure, JsCast};
 use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL};
 
-use crate::{js_log, common, graphics::{shader_manager::{ShaderManager, ShaderProgramManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height}, math::{mat4::Matrix4, vec3::Vector3}};
+use crate::{js_log, common, graphics::{shader_manager::{ShaderManager, ShaderProgramManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height, get_projection_matrix, get_view_matrix}, math::{mat4::Matrix4, vec3::Vector3}};
 
 use super::material::Material;
 
@@ -46,23 +46,22 @@ impl Material for Unlit3D {
             "transform_matrix"
         ).unwrap();
         
-        // TODO: Get this from application state
-        let height = get_canvas_height();
-        let width = get_canvas_width();
-        let proj_mat = Matrix4::perspective(
-            0.436 * 2.0, 
-            width/height, 
-            0.1, 
-            100.0
-        );
+        // let proj_mat = Matrix4::perspective(
+        //     0.436 * 2.0, 
+        //     width/height, 
+        //     0.1, 
+        //     100.0
+        // );
+        let proj_mat = get_projection_matrix();
 
         // TODO Get camera pos and rotation
-        let view_mat = Matrix4::view(
-            Vector3::new(0.0, 0.0, -5.0), 
-            Vector3::up(), 
-            // &Vector3::new(2.5, 0.0, 15.5).normalize()
-            -Vector3::forward()
-        );
+        // let view_mat = Matrix4::view(
+        //     Vector3::new(0.0, 0.0, -5.0), 
+        //     Vector3::up(), 
+        //     // &Vector3::new(2.5, 0.0, 15.5).normalize()
+        //     -Vector3::forward()
+        // );
+        let view_mat = get_view_matrix();
 
         let view_proj_mat = view_mat * proj_mat;
         let world_mat = peek_mat_stack();
@@ -144,22 +143,24 @@ impl Material for UnlitTextured3D {
         ).unwrap();
         
         // TODO: Get this from application state
-        let height = get_canvas_height();
-        let width = get_canvas_width();
-        let proj_mat = Matrix4::perspective(
-            0.436 * 2.0, 
-            width/height, 
-            0.1, 
-            100.0
-        );
+        // let height = get_canvas_height();
+        // let width = get_canvas_width();
+        // let proj_mat = Matrix4::perspective(
+        //     0.436 * 2.0, 
+        //     width/height, 
+        //     0.1, 
+        //     100.0
+        // );
+        let proj_mat = get_projection_matrix();
 
         // TODO Get camera pos and rotation
-        let view_mat = Matrix4::view(
-            Vector3::new(0.0, 0.0, -5.0), 
-            Vector3::up(), 
-            // &Vector3::new(2.5, 0.0, 15.5).normalize()
-            -Vector3::forward()
-        );
+        // let view_mat = Matrix4::view(
+        //     Vector3::new(0.0, 0.0, -5.0), 
+        //     Vector3::up(), 
+        //     // &Vector3::new(2.5, 0.0, 15.5).normalize()
+        //     -Vector3::forward()
+        // );
+        let view_mat = get_view_matrix();
 
         let view_proj_mat = view_mat * proj_mat;
         let world_mat = peek_mat_stack();

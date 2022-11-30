@@ -1,6 +1,8 @@
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, {WebGl2RenderingContext as GL}, WebGlShader, WebGlProgram};
 
+use crate::register_mouse_events;
+
 
 /// Get a `WebGl2RenderingContext` from a canvas element with the specified
 /// `element_id`
@@ -22,6 +24,8 @@ pub fn get_gl_context(element_id: &str) -> Result<GL, JsValue> {
     let document = web_sys::window().unwrap().document().unwrap();
     let canvas = document.get_element_by_id(element_id).unwrap();
     let canvas:HtmlCanvasElement = canvas.dyn_into::<HtmlCanvasElement>()?;
+
+    register_mouse_events(&canvas);
 
     let gl = canvas
         .get_context("webgl2")? // Using webgl2

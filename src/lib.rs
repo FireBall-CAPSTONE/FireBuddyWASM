@@ -1,13 +1,16 @@
 // Hamilton Rice
 
+use app_state::{set_mouse_pos, set_mouse_down, update_projection_matrix, update_view_matrix, move_camera, set_mouse_drag, get_mouse_drag};
 use common::compile_shader;
 use graphics::mesh::Mesh;
 use graphics::mesh_renderer::MeshRenderer;
-use graphics::{programs::*, frag_shaders, vert_shaders};
+use graphics::{frag_shaders, vert_shaders};
 use graphics::shader_manager::{ShaderManager, ShaderProgramManager};
-use wasm_bindgen::prelude::*;
-use web_sys::{WebGl2RenderingContext, WebGlShader};
+use math::vec2::Vector2;
+use wasm_bindgen::{prelude::*, JsCast};
+use web_sys::{WebGl2RenderingContext, HtmlCanvasElement};
 
+use crate::app_state::{get_mouse_delta, get_mouse_pos, update_mouse_delta, set_camera_position};
 use crate::graphics::programs::unlit_3d::{UnlitTextured3D, Unlit3D};
 use crate::math::quaternion::Quaternion;
 use crate::math::vec3::Vector3;
@@ -31,7 +34,8 @@ pub struct App {
     gl: WebGl2RenderingContext,
     root: Node,
     shader_manager: ShaderManager,
-    program_manager: ShaderProgramManager
+    program_manager: ShaderProgramManager,
+    cache_mouse_pos: Vector2
 }
 
 #[wasm_bindgen]
@@ -46,7 +50,7 @@ impl App {
         gl.enable(WebGl2RenderingContext::DEPTH_TEST); // Sort by depth
         gl.cull_face(WebGl2RenderingContext::BACK);
         gl.clear_color(0.0, 0.0, 0.0, 1.0);
-        
+
         log("Compiling Shaders");
         let shader_manager = precompile_shaders(&gl);
         let program_manager = link_programs(&gl, &shader_manager);
@@ -148,31 +152,37 @@ impl App {
         quad_sphere_node_4.add_renderer(r4);
         quad_sphere_node_5.add_renderer(r6);
         quad_sphere_node_6.add_renderer(r5);
+
         quad_sphere_node_2.rotation = Quaternion::euler(
             0.0, 
             90.0 * deg_to_rad, 
             0.0
         );
+
         quad_sphere_node_3.rotation = Quaternion::euler(
             0.0, 
             180.0 * deg_to_rad, 
             0.0
         );
+
         quad_sphere_node_4.rotation = Quaternion::euler(
             0.0, 
             270.0 * deg_to_rad, 
             0.0
         );
+
         quad_sphere_node_5.rotation = Quaternion::euler(
             270.0 * deg_to_rad, 
             0.0, 
             0.0
         );
+
         quad_sphere_node_6.rotation = Quaternion::euler(
             90.0 * deg_to_rad, 
             0.0, 
             0.0
         );
+
         // root_node.add_renderer(r);
         root_node.add_child(quad_sphere_node);
         root_node.add_child(quad_sphere_node_2);
@@ -180,39 +190,45 @@ impl App {
         root_node.add_child(quad_sphere_node_4);
         root_node.add_child(quad_sphere_node_5);
         root_node.add_child(quad_sphere_node_6);
-        
-        // let mut base_rot = Node::new();
-        // let mut base_pos = Node::new();
 
+        set_camera_position(Vector3::new(
+            0.0,
+            0.0,
+            15.0
+        ));
+        
         App{
             gl: gl,
             root: root_node,
             shader_manager: shader_manager,
-            program_manager: program_manager
+            program_manager: program_manager,
+            cache_mouse_pos: get_mouse_pos()
         }
     }
 
     pub fn update(&mut self, delta_time: f32, canvas_height: i32, canvas_width: i32) -> Result<(), JsValue> {
-        // Update canvas size
-        // update view matrix
-        // update 
-
-        // self.root.position -= Vector3::up() * delta_time * 0.2;
         
         app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
 
-        self.root.scale += Vector3::new(delta_time * 0.05, delta_time * 0.5, delta_time * 0.1);
+        let new_mouse_pos = get_mouse_pos();
+        let delta = self.cache_mouse_pos - get_mouse_pos();
+        update_mouse_delta(delta[0], delta[1]);
+        self.cache_mouse_pos = new_mouse_pos;
+
+        let mouse_delta = get_mouse_delta();
+        self.root.scale += Vector3::new(mouse_delta[1] * 0.005, mouse_delta[0] * 0.005, 0.0);
+
         // self.root.position -= Vector3::new(0.0, 0.0, delta_time * 0.01);
         self.gl.viewport(0, 0, canvas_width, canvas_height);
 
         self.root.rotation = Quaternion::euler(
-            0.0,//self.root.scale[0],
+            self.root.scale[0],
             self.root.scale[1],
             0.0//self.root.scale[2]
         );
 
         // self.root.position = Vector3::new(0.0, (self.root.scale[1] as f32).sin(), 0.0);
-
+        update_camera();
         Ok(())
     }
 
@@ -267,6 +283,11 @@ impl App {
         let _ = &self.root.add_child(base_rot_lon);
         
         Ok(())
+    }
+
+    pub fn set_filter(list: Vec<usize>) {
+        // Enable or disable certain renderer elements
+
     }
 }
 
@@ -324,4 +345,66 @@ fn link_programs(gl: &WebGl2RenderingContext, shader_manager: &ShaderManager) ->
 
 pub fn js_log(msg: &str) {
     // log(msg)
+}
+
+pub fn register_mouse_events(canvas: &HtmlCanvasElement) -> Result<(), JsValue> {
+    
+    let mouse_wheel_handler = move |event: web_sys::WheelEvent| {
+        log(&format!("{}", event.delta_y()));
+        // Move camera by sign of delta_y
+        move_camera(
+            Vector3::new(
+                0.0, 
+                0.0, 
+                (event.delta_y() * 0.01) as f32
+            )
+        );
+    };
+
+    let mouse_wheel_handler = Closure::wrap(Box::new(mouse_wheel_handler) as Box<dyn FnMut(_)>);
+    canvas.add_event_listener_with_callback("wheel", mouse_wheel_handler.as_ref().unchecked_ref())?;
+    mouse_wheel_handler.forget();
+
+    let mouse_down_handler = move |event: web_sys::MouseEvent| {
+        // 0 = left
+        // 1 = middle
+        // 2 = right
+        set_mouse_down(true);
+    };
+
+    let mouse_down_handler = Closure::wrap(Box::new(mouse_down_handler) as Box<dyn FnMut(_)>);
+    canvas.add_event_listener_with_callback("mousedown", mouse_down_handler.as_ref().unchecked_ref())?;
+    mouse_down_handler.forget();
+
+    let mouse_up_handler = move |event: web_sys::MouseEvent| {
+        set_mouse_down(false);
+        if get_mouse_drag() {
+            log("drag")
+        } else {
+            log("click")
+        }
+        set_mouse_drag(false);
+    };
+
+    let mouse_up_handler = Closure::wrap(Box::new(mouse_up_handler) as Box<dyn FnMut(_)>);
+    canvas.add_event_listener_with_callback("mouseup", mouse_up_handler.as_ref().unchecked_ref())?;
+    mouse_up_handler.forget();
+
+    let mouse_move_handler = move |event: web_sys::MouseEvent| {
+        set_mouse_pos(event.screen_x() as f32, event.screen_y() as f32);
+        set_mouse_drag(true);
+    };
+
+    let mouse_move_handler = Closure::wrap(Box::new(mouse_move_handler) as Box<dyn FnMut(_)>);
+    canvas.add_event_listener_with_callback("mousemove", mouse_move_handler.as_ref().unchecked_ref())?;
+    mouse_move_handler.forget(); // forgor
+
+    Ok(())
+    
+}
+
+fn update_camera()
+{
+    update_projection_matrix();
+    update_view_matrix();
 }
