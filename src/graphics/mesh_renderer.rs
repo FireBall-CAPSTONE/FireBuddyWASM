@@ -1,12 +1,7 @@
-use wasm_bindgen::{throw_val, JsValue};
-use web_sys::{WebGlBuffer, WebGl2RenderingContext as GL, WebGlProgram, WebGlVertexArrayObject};
-
-use crate::{common, math::{mat4::Matrix4, vec3::Vector3}, js_log, app_state::{peek_mat_stack, get_canvas_height, get_canvas_width}};
-
-use super::{mesh::Mesh, frag_shaders, vert_shaders, programs::{material::Material, unlit_3d::UnlitTextured3D}};
+use web_sys::{WebGlBuffer, WebGl2RenderingContext as GL, WebGlVertexArrayObject};
+use super::{mesh::Mesh, programs::material::Material};
 
 pub struct MeshRenderer {
-    mesh: Mesh,
     vertex_buffer: WebGlBuffer,
     index_buffer: WebGlBuffer,
     // program: WebGlProgram,
@@ -17,38 +12,6 @@ pub struct MeshRenderer {
 
 impl MeshRenderer {
     pub fn new(gl: &GL, mesh: Mesh, mat: Box<dyn Material>) -> Self {
-
-        // Create new program
-        // let vert_shader = common::compile_shader(
-        //     &gl, 
-        //     GL::VERTEX_SHADER,
-        //     r##"#version 300 es
-
-        //     in vec4 position;
-        //     uniform mat4 projection_matrix;
-        //     uniform mat4 position_matrix;
-
-        //     out vec4 v_pos;
-
-        //     void main() {
-        //         gl_Position = projection_matrix * position_matrix * position;
-        //         v_pos = position;
-        //     }
-        //     "##
-        //     // vert_shaders::vert_shader_3d::SHADER
-        // ).unwrap();
-
-        // let frag_shader = common::compile_shader(
-        //     &gl, 
-        //     GL::FRAGMENT_SHADER, 
-        //     frag_shaders::output_test::SHADER
-        // ).unwrap();
-
-        // let program = common::link_program(&gl, &vert_shader, &frag_shader).unwrap();
-        // gl.use_program(Some(&program));
-        // js_log("creating material");
-        // let material = UnlitTextured3D::new(&gl);
-        // js_log("created material");
         
         // Create buffers and attributes
         let program = mat.get_program();
@@ -115,74 +78,16 @@ impl MeshRenderer {
 
         Self {
             index_count: mesh.index_size as i32,
-            mesh: mesh,
             vertex_buffer: vbuffer,
             index_buffer: ibuffer,
-            // program: program,
             vao: vao,
             mat: mat
         }
     }
 
-    pub fn render(&self, gl: &GL, trs: Matrix4) {
+    pub fn render(&self, gl: &GL) {
 
-        // gl.use_program(Some(&self.program));
         self.mat.use_material(gl);
-        // js_log("init uniforms");
-        // self.mat.init_uniforms(gl);
-        // js_log("done init uniforms");
-
-        // let proj_mat_location = gl.get_uniform_location(
-        //     &self.program,
-        //     "projection_matrix"
-        // ).unwrap(); // Just assume this exists (shrugging lenny face)
-        
-        
-        // let transform_mat_location = gl.get_uniform_location(
-        //     &self.program,
-        //     "position_matrix"
-        // ).unwrap();
-
-        // let height = get_canvas_height();
-        // let width = get_canvas_width();
-
-        // TODO: Get this from application state
-        // let proj_mat = Matrix4::perspective(
-        //     0.436 * 2.0, 
-        //     width/height, 
-        //     0.1, 
-        //     100.0
-        // );
-        // let view_mat = Matrix4::view(
-        //     Vector3::new(0.0, 0.0, -5.0), 
-        //     Vector3::up(), 
-        //     // &Vector3::new(2.5, 0.0, 15.5).normalize()
-        //     -Vector3::forward()
-        // );
-
-        // let view_mat = Matrix4::view_xz(
-        //     &Vector3::new(0.0, 1.5, 5.0),
-        //     &Vector3::right(),
-        //     &-Vector3::new(0.0, 1.5, 5.0).normalize()
-        // ).transpose();
-
-        // let view_proj_mat = view_mat * proj_mat;
-
-        // let proj_mat = Matrix4::identity();
-        // gl.uniform_matrix4fv_with_f32_array(
-        //     Some(&proj_mat_location), 
-        //     false, 
-        //     &view_proj_mat.data
-        // );
-
-        // let world_mat = peek_mat_stack();
-
-        // let pos_matrix = Matrix4::translate(0.0, 0.0, -15.0);
-        // gl.uniform_matrix4fv_with_f32_array(
-        //     Some(&transform_mat_location),
-        //     false,
-        //     &world_mat.data
-        // );
 
         gl.bind_vertex_array(Some(&self.vao));
 

@@ -8,7 +8,7 @@ use crate::math::vec2::Vector2;
 use crate::math::vec3::Vector3;
 
 lazy_static! {
-    static ref APP_STATE: Mutex<Arc<AppState>> = Mutex::new(Arc::new(AppState::new(0.0, 800.0, 600.0)));
+    static ref APP_STATE: Mutex<Arc<AppState>> = Mutex::new(Arc::new(AppState::new(800.0, 600.0)));
 }
 
 lazy_static! {
@@ -23,10 +23,10 @@ lazy_static! {
     static ref CAMERA: Mutex<Arc<Camera>> = Mutex::new(Arc::new(Camera::new()));
 }
 
-pub fn update_dynamic_data(time: f32, canvas_height: f32, canvas_width: f32) {
+pub fn update_dynamic_data(canvas_height: f32, canvas_width: f32) {
     let mut data = APP_STATE.lock().unwrap();
     
-    *data = Arc::new( AppState::new(time, canvas_height, canvas_width));
+    *data = Arc::new( AppState::new(canvas_height, canvas_width));
 }
 
 pub fn get_canvas_height() -> f32 {
@@ -190,24 +190,16 @@ pub fn peek_mat_stack() -> Matrix4 {
 }
 
 pub struct AppState {
-    time: f32,
     canvas_height: f32,
     canvas_width: f32,
-    pub(crate) mat_stack: Vec<Matrix4>
 }
 
 impl AppState {
-    pub fn new(time: f32, canvas_height: f32, canvas_width: f32) -> Self {
+    pub fn new(canvas_height: f32, canvas_width: f32) -> Self {
         Self {
-            time: time,
             canvas_height: canvas_height,
             canvas_width: canvas_width,
-            mat_stack: Vec::new()
         }
-    }
-
-    pub(crate) fn push_to_mat_sack(self, m: Matrix4) -> Self {
-        Self::new(self.time, self.canvas_height, self.canvas_width)
     }
 }
 

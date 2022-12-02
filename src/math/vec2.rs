@@ -6,6 +6,7 @@ pub struct Vector2 {
 
 }
 
+#[allow(dead_code)]
 impl Vector2 {
 
     /// Constructor for a new Vector2

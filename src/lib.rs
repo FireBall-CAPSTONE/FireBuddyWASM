@@ -33,7 +33,6 @@ extern "C" {
 pub struct App {
     gl: WebGl2RenderingContext,
     root: Node,
-    shader_manager: ShaderManager,
     program_manager: ShaderProgramManager,
     cache_mouse_pos: Vector2
 }
@@ -59,7 +58,7 @@ impl App {
 
         let r = MeshRenderer::new(
             &gl,
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()),
+            Mesh::normal_cube_unit_sphere_face(32),
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -72,7 +71,7 @@ impl App {
 
         let r2 = MeshRenderer::new(
             &gl, 
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Mesh::normal_cube_unit_sphere_face(32), 
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -85,7 +84,7 @@ impl App {
 
         let r3 = MeshRenderer::new(
             &gl, 
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Mesh::normal_cube_unit_sphere_face(32), 
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -98,7 +97,7 @@ impl App {
 
         let r4 = MeshRenderer::new(
             &gl, 
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Mesh::normal_cube_unit_sphere_face(32), 
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -111,7 +110,7 @@ impl App {
 
         let r5 = MeshRenderer::new(
             &gl, 
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Mesh::normal_cube_unit_sphere_face(32), 
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -124,7 +123,7 @@ impl App {
 
         let r6 = MeshRenderer::new(
             &gl, 
-            Mesh::normal_cube_unit_sphere_face(32, Vector3::forward()), 
+            Mesh::normal_cube_unit_sphere_face(32), 
             // Mesh::texture_quad(),
             Box::new(
                 UnlitTextured3D::new(
@@ -200,7 +199,6 @@ impl App {
         App{
             gl: gl,
             root: root_node,
-            shader_manager: shader_manager,
             program_manager: program_manager,
             cache_mouse_pos: get_mouse_pos()
         }
@@ -208,7 +206,7 @@ impl App {
 
     pub fn update(&mut self, delta_time: f32, canvas_height: i32, canvas_width: i32) -> Result<(), JsValue> {
         
-        app_state::update_dynamic_data(delta_time, canvas_height as f32, canvas_width as f32);
+        app_state::update_dynamic_data(canvas_height as f32, canvas_width as f32);
 
         let new_mouse_pos = get_mouse_pos();
         let delta = self.cache_mouse_pos - get_mouse_pos();
@@ -216,7 +214,7 @@ impl App {
         self.cache_mouse_pos = new_mouse_pos;
 
         let mouse_delta = get_mouse_delta();
-        self.root.scale += Vector3::new(mouse_delta[1] * 0.005, mouse_delta[0] * 0.005, 0.0);
+        self.root.scale += Vector3::new(mouse_delta[1], mouse_delta[0], 0.0) * delta_time;
 
         // self.root.position -= Vector3::new(0.0, 0.0, delta_time * 0.01);
         self.gl.viewport(0, 0, canvas_width, canvas_height);
@@ -285,7 +283,7 @@ impl App {
         Ok(())
     }
 
-    pub fn set_filter(list: Vec<usize>) {
+    pub fn set_filter(_list: Vec<usize>) {
         // Enable or disable certain renderer elements
 
     }
@@ -343,7 +341,7 @@ fn link_programs(gl: &WebGl2RenderingContext, shader_manager: &ShaderManager) ->
     program_manager
 }
 
-pub fn js_log(msg: &str) {
+pub fn js_log(_msg: &str) {
     // log(msg)
 }
 
@@ -365,7 +363,7 @@ pub fn register_mouse_events(canvas: &HtmlCanvasElement) -> Result<(), JsValue> 
     canvas.add_event_listener_with_callback("wheel", mouse_wheel_handler.as_ref().unchecked_ref())?;
     mouse_wheel_handler.forget();
 
-    let mouse_down_handler = move |event: web_sys::MouseEvent| {
+    let mouse_down_handler = move |_event: web_sys::MouseEvent| {
         // 0 = left
         // 1 = middle
         // 2 = right
@@ -376,7 +374,7 @@ pub fn register_mouse_events(canvas: &HtmlCanvasElement) -> Result<(), JsValue> 
     canvas.add_event_listener_with_callback("mousedown", mouse_down_handler.as_ref().unchecked_ref())?;
     mouse_down_handler.forget();
 
-    let mouse_up_handler = move |event: web_sys::MouseEvent| {
+    let mouse_up_handler = move |_event: web_sys::MouseEvent| {
         set_mouse_down(false);
         if get_mouse_drag() {
             log("drag")

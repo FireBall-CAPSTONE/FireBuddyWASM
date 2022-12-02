@@ -9,6 +9,7 @@ pub struct Matrix4 {
     pub data: [f32; 16]
 }
 
+#[allow(dead_code)]
 impl Matrix4 {
 
     // Constructors
@@ -85,22 +86,6 @@ impl Matrix4 {
                        0.0, 0.0, near * far * range_inv * 2.0,  0.0
         ] }
     }
-
-    /// Create a new orthographic projection matrix.
-    /// 
-    /// Takes in a width and aspect ratio and calculates a clipping space matrix for 2D
-    /// orthographic projection.
-    /// 
-    /// # Examples
-    /// ```
-    /// // TODO: add examples
-    /// ```
-    pub fn orthographic(width: f32, aspect_ratio: f32) -> Self {
-        // TODO: Implement
-        todo!();
-
-        Self::identity()
-    }
     
     /// Create a new view matrix.
     /// 
@@ -159,13 +144,6 @@ impl Matrix4 {
             0.0, 0.0, 1.0, 0.0,
               x,   y,   z, 1.0
         ] }
-    }
-
-    /// Rotate based around each cardinal axis in order x -> y -> z
-    pub fn rotate_euler(x: f32, y: f32, z: f32) -> Self {
-        // TODO: Implement
-
-        Self::identity()
     }
 
     /// Rotate based on a specified quaternion

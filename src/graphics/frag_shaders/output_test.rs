@@ -1,4 +1,5 @@
 /// Simple shader to test outcolor
+#[allow(dead_code)]
 pub const SHADER: &str = r##"#version 300 es
 
 precision mediump float;

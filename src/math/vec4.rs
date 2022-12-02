@@ -1,7 +1,4 @@
 use std::ops::{Mul, MulAssign, AddAssign, SubAssign, Sub, Add, Neg, Index, IndexMut};
-
-use nalgebra::Vector;
-
 use super::{mat4::Matrix4, axis::Axis};
 
 
@@ -10,10 +7,11 @@ pub struct Vector4 {
     data: [f32; 4]
 }
 
+#[allow(dead_code)]
 impl Vector4 {
 
     // Constructors
-
+    
     pub fn new(x:f32, y:f32, z:f32, w:f32) -> Vector4 {
         Self { data: [
             x,
@@ -69,7 +67,10 @@ impl Vector4 {
     }
 
     pub fn dot(a: Vector4, b: Vector4) -> f32 {
-        todo!()
+        a[0] * b[0] +
+        a[1] * b[1] +
+        a[2] * b[2] +
+        a[3] * b[3]
     }
 
     pub fn magnitude(&self) -> f32 {
@@ -165,13 +166,13 @@ impl MulAssign<f32> for Vector4 {
 impl Mul<Matrix4> for Vector4 {
     type Output = Vector4;
 
-    fn mul(self, rhs: Matrix4) -> Self::Output {
+    fn mul(self, _rhs: Matrix4) -> Self::Output {
         todo!()
     }
 }
 
 impl MulAssign<Matrix4> for Vector4 {
-    fn mul_assign(&mut self, rhs: Matrix4) {
+    fn mul_assign(&mut self, _rhs: Matrix4) {
         todo!()
     }
 }

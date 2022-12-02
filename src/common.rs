@@ -25,7 +25,7 @@ pub fn get_gl_context(element_id: &str) -> Result<GL, JsValue> {
     let canvas = document.get_element_by_id(element_id).unwrap();
     let canvas:HtmlCanvasElement = canvas.dyn_into::<HtmlCanvasElement>()?;
 
-    register_mouse_events(&canvas);
+    register_mouse_events(&canvas).unwrap();
 
     let gl = canvas
         .get_context("webgl2")? // Using webgl2

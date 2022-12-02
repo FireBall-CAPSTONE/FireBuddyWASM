@@ -1,6 +1,4 @@
 // Hamilton Rice
-
-use crate::js_log;
 use crate::math::vec3::Vector3;
 use crate::math::vec2::Vector2;
 
@@ -11,6 +9,7 @@ pub struct Vertex {
     uvs: Vector2
 }
 
+#[allow(dead_code)]
 impl Vertex {
     pub fn new(pos: Vector3, nor: Vector3, uvs: Vector2) -> Self {
         Self { pos, nor, uvs }
@@ -22,7 +21,6 @@ impl Vertex {
 
     pub fn as_array(self) -> [f32; 8] {
         [self.pos[0], self.pos[1], self.pos[2], self.nor[0], self.nor[1], self.nor[2], self.uvs[0], self.uvs[1]]
-        // [self.uvs[1], self.uvs[0], self.nor[2], self.nor[1], self.nor[0], self.pos[2], self.pos[1], self.pos[0]]
     }
 }
 
@@ -33,7 +31,9 @@ pub struct Mesh {
 
 }
 
+#[allow(dead_code)]
 impl Mesh {
+    
     pub fn new() -> Self {
         // Empty
         Self {
@@ -42,7 +42,7 @@ impl Mesh {
             index_size: 0
         }
     }
-
+    
     pub fn unit_cube() -> Self {
         let verts = vec![
             -0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, 0.0,
@@ -105,7 +105,7 @@ impl Mesh {
         Self { index_size: indices.len(), verts: verts, inds: indices }
     }
 
-    pub fn normal_cube_unit_sphere_face(resolution: u32, direction: Vector3) -> Self {
+    pub fn normal_cube_unit_sphere_face(resolution: u32) -> Self {
 
         // Pre allocate the required number of vertices and indices to save time
         // let mut points: Vec<Vertex> = vec![Vertex::default(); (resolution * resolution) as usize];

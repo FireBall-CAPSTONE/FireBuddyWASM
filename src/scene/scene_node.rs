@@ -1,8 +1,6 @@
 use std::sync::Arc;
-
 use web_sys::WebGl2RenderingContext as GL;
-
-use crate::{graphics::{mesh::Mesh, mesh_renderer::MeshRenderer}, math::{mat4::Matrix4, vec3::Vector3, quaternion::Quaternion}, app_state::{multiply_to_mat_stack, pop_from_mat_stack}};
+use crate::{graphics::{mesh_renderer::MeshRenderer}, math::{mat4::Matrix4, vec3::Vector3, quaternion::Quaternion}, app_state::{multiply_to_mat_stack, pop_from_mat_stack}};
 
 #[derive(Default, Clone)]
 pub struct Node {
@@ -11,8 +9,7 @@ pub struct Node {
     pub children: Vec<Arc<Node>>,
     pub position: Vector3,
     pub rotation: Quaternion,
-    pub scale: Vector3,
-    transform: Matrix4
+    pub scale: Vector3
 }
 
 impl Node {
@@ -23,8 +20,7 @@ impl Node {
             children: Vec::new(),
             position: Vector3::zero(),
             rotation: Quaternion::euler(0.0, 0.0, 0.0),
-            scale: Vector3::zero(),
-            transform: Matrix4::identity()
+            scale: Vector3::zero()
         }
     }
 
@@ -66,7 +62,7 @@ impl Node {
 
         if self.renderer.is_some() {
             // Very good not at all stupid or bad
-            self.renderer.as_ref().unwrap().render(&gl, transform)
+            self.renderer.as_ref().unwrap().render(&gl)
         }
 
         // Pop my matrix from the mat stack

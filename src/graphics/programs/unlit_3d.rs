@@ -2,7 +2,7 @@ use std::{rc::Rc};
 use wasm_bindgen::{JsValue, prelude::Closure, JsCast};
 use web_sys::{WebGlProgram, WebGlTexture, HtmlImageElement, WebGl2RenderingContext as GL};
 
-use crate::{js_log, common, graphics::{shader_manager::{ShaderManager, ShaderProgramManager}}, app_state::{peek_mat_stack, get_canvas_width, get_canvas_height, get_projection_matrix, get_view_matrix}, math::{mat4::Matrix4, vec3::Vector3}};
+use crate::{js_log, graphics::shader_manager::ShaderProgramManager, app_state::{peek_mat_stack, get_projection_matrix, get_view_matrix}};
 
 use super::material::Material;
 
@@ -11,7 +11,7 @@ pub struct Unlit3D {
 }
 
 impl Unlit3D {
-    pub fn new(gl: &GL, program_manager: &ShaderProgramManager) -> Self {
+    pub fn new(_gl: &GL, program_manager: &ShaderProgramManager) -> Self {
         let prgm = program_manager.get_program("simple_unlit").to_owned();
     
         Self {
@@ -40,30 +40,15 @@ impl Material for Unlit3D {
             "view_matrix"
         ).unwrap();
 
-        // js_log("init trans");
         let transform_mat_location = gl.get_uniform_location(
             &self.program, 
             "transform_matrix"
         ).unwrap();
         
-        // let proj_mat = Matrix4::perspective(
-        //     0.436 * 2.0, 
-        //     width/height, 
-        //     0.1, 
-        //     100.0
-        // );
         let proj_mat = get_projection_matrix();
 
-        // TODO Get camera pos and rotation
-        // let view_mat = Matrix4::view(
-        //     Vector3::new(0.0, 0.0, -5.0), 
-        //     Vector3::up(), 
-        //     // &Vector3::new(2.5, 0.0, 15.5).normalize()
-        //     -Vector3::forward()
-        // );
         let view_mat = get_view_matrix();
 
-        let view_proj_mat = view_mat * proj_mat;
         let world_mat = peek_mat_stack();
 
         gl.uniform_matrix4fv_with_f32_array(
@@ -105,8 +90,6 @@ impl UnlitTextured3D {
             program: prgm,
             texture: tex,
         }
-
-        // todo!()
     }
 }
 
@@ -114,7 +97,6 @@ impl Material for UnlitTextured3D {
     fn use_material(&self, gl: &GL) {
         gl.use_program(Some(&self.program));
         self.init_uniforms(gl);
-        // todo!()
     }
 
     fn init_uniforms(&self, gl: &GL) {
@@ -125,7 +107,6 @@ impl Material for UnlitTextured3D {
             "tex"
         ).unwrap();
 
-        // js_log("init proj");
         let proj_mat_location = gl.get_uniform_location(
             &self.program, 
             "projection_matrix"
@@ -136,33 +117,15 @@ impl Material for UnlitTextured3D {
             "view_matrix"
         ).unwrap();
 
-        // js_log("init trans");
         let transform_mat_location = gl.get_uniform_location(
             &self.program, 
             "transform_matrix"
         ).unwrap();
         
-        // TODO: Get this from application state
-        // let height = get_canvas_height();
-        // let width = get_canvas_width();
-        // let proj_mat = Matrix4::perspective(
-        //     0.436 * 2.0, 
-        //     width/height, 
-        //     0.1, 
-        //     100.0
-        // );
         let proj_mat = get_projection_matrix();
 
-        // TODO Get camera pos and rotation
-        // let view_mat = Matrix4::view(
-        //     Vector3::new(0.0, 0.0, -5.0), 
-        //     Vector3::up(), 
-        //     // &Vector3::new(2.5, 0.0, 15.5).normalize()
-        //     -Vector3::forward()
-        // );
         let view_mat = get_view_matrix();
 
-        let view_proj_mat = view_mat * proj_mat;
         let world_mat = peek_mat_stack();
 
         gl.uniform_matrix4fv_with_f32_array(
@@ -193,7 +156,6 @@ impl Material for UnlitTextured3D {
         gl.bind_texture(GL::TEXTURE_2D, Some(&self.texture));
         gl.uniform1i(Some(&sampler_location), 0);
 
-        // todo!()
     }
 
     fn get_program(&self) -> WebGlProgram {
